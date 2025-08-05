@@ -2,14 +2,61 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="utbots_manipulator">
 
+    <xacro:property name="PI" value="3.14159265358979323846"/>
+    <xacro:property name="effort" value="10.0"/>   
+    <xacro:property name="velocity" value="5.0"/>       
+
     <link name="world"/>
 
-    <link name="base_arm_link">
+    <link name="base_link">
         <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <cylinder radius="0.15" length="0.06"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="base_arm_joint" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+
+    <link name="arm_link_1">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.17"/>
+            <geometry>
+                <cylinder radius="0.05" length="0.34"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="arm_joint_1" type="revolute">
+        <parent link="base_link"/>
+        <child link="arm_link_1"/>
+        <axis xyz="0 1 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0.06"/>
+        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+     <link name="arm_link_2">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.135"/>
             <geometry>
                 <cylinder radius="0.05" length="0.27"/>
-        <visual/>
-    <link/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="arm_joint_2" type="revolute">
+        <parent link="arm_link_1"/>
+        <child link="arm_link_2"/>
+        <axis xyz="0 1 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0.34"/>
+        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
 
     <!-- Primeiro 6cm, depois 34cm, depois 27cm -->
 
