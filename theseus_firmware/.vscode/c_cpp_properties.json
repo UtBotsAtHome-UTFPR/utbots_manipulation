@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/robo/david_ws/install/utbots_srvs/include/**",
+        "/home/robo/david_ws/install/utbots_actions/include/**",
+        "/home/robo/david_ws/install/utbots_msgs/include/**",
+        "/home/robo/david_ws/install/micro_ros_agent/include/**",
+        "/home/robo/david_ws/install/micro_ros_msgs/include/**",
+        "/home/robo/david_ws/install/hoverboard_driver/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/robo/david_ws/src/uros/micro-ROS-Agent/micro_ros_agent/include/**",
+        "/home/robo/david_ws/src/utbots_navigation/utbots_nav/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

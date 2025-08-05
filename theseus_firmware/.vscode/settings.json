@@ -1,0 +1,36 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/robo/david_ws/install/yolov8_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/whisper_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/vad_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_tasks/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_srvs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/utbots_nlu/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_nav_utils/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_face_recognition/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_actions/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/utbots_msgs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/ros_tts/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/micro_ros_msgs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/mediapipe_track/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/robo/david_ws/install/yolov8_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/whisper_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/vad_ros/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_tasks/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_srvs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/utbots_nlu/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_nav_utils/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_face_recognition/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/utbots_actions/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/utbots_msgs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/ros_tts/lib/python3.10/site-packages",
+        "/home/robo/david_ws/install/micro_ros_msgs/local/lib/python3.10/dist-packages",
+        "/home/robo/david_ws/install/mediapipe_track/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

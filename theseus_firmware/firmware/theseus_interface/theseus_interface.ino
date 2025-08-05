@@ -3,12 +3,12 @@
 /* Definition of each joint */
 
 // Base joint
-#define SERVO_BASE_PIN 8
+#define SERVO_BASE_PIN 22
 #define BASE_START 90
 Servo base;
 
 // Shoulder joint
-#define SERVO_SHOULDER_PIN 9
+#define SERVO_SHOULDER_PIN 24
 #define SHOULDER_START 90
 Servo shoulder;
 
@@ -19,20 +19,21 @@ char angle_value[3] = "000";
 
 void servo_reach_goal(Servo motor, int goal)
 {
-    if(goal>=motor.read[])
-    {
-        for(int pos = motor.read(); pos <= goal; pos++) {
-            motor.write(pos);
-            delay(5);
-        }
-    }
-    else
-    {
-        for(int pos = motor.read(); pos >= goal; pos--) {
-            motor.write(pos);
-            delay(5);
-        }
-    }
+      motor.write(goal);
+//    if(goal>=motor.read())
+//    {
+//        for(int pos = motor.read(); pos <= goal; pos++) {
+//            motor.write(pos);
+//            delay(5);
+//        }
+//    }
+//    else
+//    {
+//        for(int pos = motor.read(); pos >= goal; pos--) {
+//            motor.write(pos);
+//            delay(5);
+//        }
+//    }
 }
 
 
@@ -47,6 +48,7 @@ void setup() {
 
     Serial.begin(115200); // Initialize serial communication at 115200 baud
     Serial.setTimeout(1); // Set a timeout for serial read operations
+    Serial.println("Setup ok");
 }
 
 void loop() {
@@ -61,6 +63,7 @@ void loop() {
 
         */
         char chr = Serial.read();
+        Serial.println(chr);
         if(chr == 'b')
         {
             joint_idx = 0;
@@ -72,8 +75,9 @@ void loop() {
             angle_value_idx = 0; // Reset angle value index
         }
         /* Finalized the parsing of a joint, send the angle for the joint */
-        else if (chr == ",")
+        else if (chr == ',')
         {
+            Serial.println(String(joint_idx));
             int angle = atoi(angle_value); // Convert the angle value string to an integer
             if (joint_idx == 0) 
             {
@@ -87,10 +91,10 @@ void loop() {
             }
 
             // Reset angle value for the next joint
-            value[0] = '0';
-            value[1] = '0';
-            value[2] = '0';
-            value[3] = '\0'; 
+            angle_value[0] = '0';
+            angle_value[1] = '0';
+            angle_value[2] = '0';
+            angle_value[3] = '\0'; 
         }
         /* If its a number, it must be saved, its part of the angle value */
         else
