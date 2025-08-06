@@ -2,24 +2,40 @@
 
 /* Definition of each joint */
 
-// Base joint
+// Base joint (80kgcm)
 #define SERVO_BASE_PIN 22
-#define BASE_START 90
+#define BASE_START 0
+#define BASE_CORRESPONDENT_180 130
 Servo base;
 
 // Shoulder joint
 #define SERVO_SHOULDER_PIN 24
-#define SHOULDER_START 90
+#define SHOULDER_START 0
 Servo shoulder;
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
 uint8_t angle_value_idx = 0; // Value for the current joint
-char angle_value[3] = "000";
+char angle_value[4] = "000";
 
-void servo_reach_goal(Servo motor, int goal)
-{
-      motor.write(goal);
+void testServoPulseRange(Servo motor){
+  // Sweep from 500 µs to 2500 µs in 10 µs steps
+  for (int us = 500; us <= 2500; us += 10) {
+    motor.writeMicroseconds(us);
+    Serial.print("Pulse: ");
+    Serial.println(us);
+    delay(300); // wait so you can watch movement
+  }
+}
+
+// Maps an input angle (0–180) to servo's usable range
+int scaledAngle(int goal, int maxUsable) {
+    return map(goal, 0, 180, 0, maxUsable);
+}
+
+void servo_reach_goal(Servo &motor, int goal, int maxUsable) {
+    motor.write(scaledAngle(goal, maxUsable));
+//      motor.write(goal);
 //    if(goal>=motor.read())
 //    {
 //        for(int pos = motor.read(); pos <= goal; pos++) {
@@ -43,8 +59,8 @@ void setup() {
     shoulder.attach(SERVO_SHOULDER_PIN);
 
     // Initialize joints to their starting positions
-    base.write(BASE_START);
-    shoulder.write(SHOULDER_START);
+    servo_reach_goal(base, BASE_START, BASE_CORRESPONDENT_180);
+    servo_reach_goal(shoulder, SHOULDER_START, BASE_CORRESPONDENT_180);
 
     Serial.begin(115200); // Initialize serial communication at 115200 baud
     Serial.setTimeout(1); // Set a timeout for serial read operations
@@ -82,12 +98,12 @@ void loop() {
             if (joint_idx == 0) 
             {
                 Serial.println("Sending base joint to : " + String(angle));
-                servo_reach_goal(base, angle);
+                servo_reach_goal(base, angle, BASE_CORRESPONDENT_180);
             } 
             else if (joint_idx == 1) 
             {
                 Serial.println("Sending shoulder joint to : " + String(angle));
-                servo_reach_goal(shoulder, angle);
+                servo_reach_goal(shoulder, angle, BASE_CORRESPONDENT_180);
             }
 
             // Reset angle value for the next joint
