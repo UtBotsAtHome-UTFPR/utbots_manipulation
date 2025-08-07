@@ -9,19 +9,9 @@ struct ServoMotor {
     int max_usable_angle;
 };
 
-// Base joint (160kgcm)
-base = ServoMotor();
-base.servo = Servo();
-base.pin = 22;
-base.start_angle = 0;
-base.max_usable_angle = 130;
-
-// Shoulder joint (80kgcm)
-shoulder = ServoMotor();
-shoulder.servo = Servo();
-shoulder.pin = 24;
-shoulder.start_angle = 0;
-shoulder.max_usable_angle = 130;
+// Create and initialize in one line
+ServoMotor base = {Servo(), 22, 0, 130};      // Base joint (160kgcm)
+ServoMotor shoulder = {Servo(), 24, 0, 130};  // Shoulder joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
