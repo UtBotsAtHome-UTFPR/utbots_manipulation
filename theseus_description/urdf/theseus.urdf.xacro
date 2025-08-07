@@ -5,6 +5,9 @@
     <xacro:property name="PI" value="3.14159265358979323846"/>
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
+    <xacro:property name="link1_length" value="0.34"/>
+    <xacro:property name="link2_length" value="0.27"/>
+    <xacro:property name="finger_length" value="0.15"/>
 
     <link name="world"/>
 
@@ -25,9 +28,9 @@
 
     <link name="arm_link_1">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.17"/>
+            <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="0.34"/>
+                <cylinder radius="0.05" length="${link1_length}"/>
             </geometry>
         </visual>
     </link>
@@ -37,14 +40,14 @@
         <child link="arm_link_1"/>
         <axis xyz="0 1 0"/>
         <origin rpy="0 0 0" xyz="0 0 0.06"/>
-        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
      <link name="arm_link_2">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.135"/>
+            <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="0.27"/>
+                <cylinder radius="0.05" length="${link2_length}"/>
             </geometry>
         </visual>
     </link>
@@ -53,11 +56,84 @@
         <parent link="arm_link_1"/>
         <child link="arm_link_2"/>
         <axis xyz="0 1 0"/>
-        <origin rpy="0 0 0" xyz="0 0 0.34"/>
-        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <origin rpy="0 0 0" xyz="0 0 ${link1_length}"/>
+        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
+    <link name="claw_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.01"/>
+            <geometry>
+                <cylinder radius="0.04" length="0.02"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="arm_to_claw_joint" type="fixed">
+        <parent link="arm_link_2"/>
+        <child link="claw_link"/>
+        <origin rpy="0 0 0" xyz="0 0 ${link2_length}"/>
+    </joint>
+
+    <link name="gripper_right">
+        <visual>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <link name="gripper_left">
+    <visual>
+        <origin rpy="0 0 -${PI/2}" xyz="0 0.02 ${finger_length/2}"/>
+        <geometry>
+            <cylinder radius="0.02" length="${finger_length}"/>
+        </geometry>
+    </visual>
+    </link>
+
+    <joint name="gripper_joint_1" type="revolute">
+        <parent link="claw_link"/>
+        <child link="gripper_right"/>
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+    <joint name="gripper_joint_2" type="revolute">
+        <parent link="claw_link"/>
+        <child link="gripper_left"/>
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <mimic joint="gripper_joint_1" multiplier="-1"/>
+    </joint>
 
     <!-- Primeiro 6cm, depois 34cm, depois 27cm -->
 
 </robot>
+
+
+<!-- <ros2_control name="TheseusSystem" type="system">
+    <hardware>
+        <plugin>mock_components/GenericSystem</plugin>
+        <param name="example_param">example_value</param>
+    </hardware>
+
+    <!-- Arm joints -->
+    <joint name="arm_joint_1">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+    </joint>
+    <joint name="arm_joint_2">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+    </joint>
+
+    <!-- Gripper joint -->
+    <joint name="gripper_joint_1">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+    </joint>
+</ros2_control> -->

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(theseus_description)
+project(theseus_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,8 +7,9 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+
 install(
-  DIRECTORY urdf launch rviz
+  DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
 )
 
