@@ -2,24 +2,40 @@
 
 /* Definition of each joint */
 
-// Base joint
-#define SERVO_BASE_PIN 22
-#define BASE_START 90
-Servo base;
+struct ServoMotor {
+    Servo servo;
+    uint8_t pin;
+    int start_angle;
+    int max_usable_angle;
+};
 
-// Shoulder joint
-#define SERVO_SHOULDER_PIN 24
-#define SHOULDER_START 90
-Servo shoulder;
+// Create and initialize in one line
+ServoMotor base = {Servo(), 22, 0, 130};      // Base joint (160kgcm)
+ServoMotor shoulder = {Servo(), 24, 0, 130};  // Shoulder joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
 uint8_t angle_value_idx = 0; // Value for the current joint
-char angle_value[3] = "000";
+char angle_value[4] = "000";
 
-void servo_reach_goal(Servo motor, int goal)
-{
-      motor.write(goal);
+void testServoPulseRange(Servo motor){
+  // Sweep from 500 µs to 2500 µs in 10 µs steps
+  for (int us = 500; us <= 2500; us += 10) {
+    motor.writeMicroseconds(us);
+    Serial.print("Pulse: ");
+    Serial.println(us);
+    delay(300); // wait so you can watch movement
+  }
+}
+
+// Maps an input angle (0–180) to servo's usable range
+int scaledAngle(int goal, int maxUsable) {
+    return map(goal, 0, 180, 0, maxUsable);
+}
+
+void servo_reach_goal(ServoMotor &motor, int goal) {
+    motor.servo.write(scaledAngle(goal, motor.max_usable_angle));
+//      motor.write(goal);
 //    if(goal>=motor.read())
 //    {
 //        for(int pos = motor.read(); pos <= goal; pos++) {
@@ -39,12 +55,12 @@ void servo_reach_goal(Servo motor, int goal)
 
 void setup() {
     // Attach servo joints to their respective pins
-    base.attach(SERVO_BASE_PIN);
-    shoulder.attach(SERVO_SHOULDER_PIN);
+    base.servo.attach(base.pin);
+    shoulder.servo.attach(shoulder.pin);
 
     // Initialize joints to their starting positions
-    base.write(BASE_START);
-    shoulder.write(SHOULDER_START);
+    servo_reach_goal(base, base.start_angle);
+    servo_reach_goal(shoulder, shoulder.start_angle);
 
     Serial.begin(115200); // Initialize serial communication at 115200 baud
     Serial.setTimeout(1); // Set a timeout for serial read operations
