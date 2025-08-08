@@ -59,9 +59,9 @@ CallbackReturn TheseusInterface::on_init(const hardware_interface::HardwareInfo 
         return CallbackReturn::FAILURE;
     }
 
-    position_commands_.reserve(info_joints.size());
-    position_states_.reserve(info_joints.size());
-    prev_position_commands_.reserve(info_joints.size());
+    position_commands_.reserve(info_.joints.size());
+    position_states_.reserve(info_.joints.size());
+    prev_position_commands_.reserve(info_.joints.size());
 
     return CallbackReturn::SUCCESS;
 }
@@ -70,21 +70,21 @@ CallbackReturn TheseusInterface::on_init(const hardware_interface::HardwareInfo 
 std::vector<hardware_interface::StateInterface> TheseusInterface::export_state_interfaces()
 {
     std::vector<hardware_interface::StateInterface> state_interfaces;
-    for(size_t i = 0; i < info_joints.size(); ++i)
+    for(size_t i = 0; i < info_.joints.size(); ++i)
     {
-        state_interfaces.emplace_back(hardware_interface::StateInterface(info_joints[i].name, hardware_interface::HW_IF_POSISTION, &position_states_[i]));
+        state_interfaces.emplace_back(hardware_interface::StateInterface(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &position_states_[i]));
     }
 
     return state_interfaces;
 }
 
 /* Defines the interfaces to store the commands for each joint (data to send to hardware)*/
-virtual std::vector<hardware_interface::CommandInterface> TheseusInterface::export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> TheseusInterface::export_command_interfaces()
 {
     std::vector<hardware_interface::CommandInterface> command_interfaces;
-    for(size_t i = 0; i < info_joints.size(); ++i)
+    for(size_t i = 0; i < info_.joints.size(); ++i)
     {
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(info_joints[i].name, hardware_interface::HW_IF_POSISTION, &position_commands_[i]));
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &position_commands_[i]));
     }
 
     return command_interfaces;
@@ -136,14 +136,14 @@ CallbackReturn TheseusInterface::on_deactivate(const rclcpp_lifecycle::State & p
 }
 
 /* Reads the current state of each joint from hardware*/
-hardware_interface::return_type TheseusInterface::read(const rclcpp::Time & time, const rclcpp::Duration period)
+hardware_interface::return_type TheseusInterface::read(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
     position_states_ = position_commands_; // Change when using encoders
     return hardware_interface::return_type::OK;
 }
 
 /* Write the goal state of each joint to hardware*/
-hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & time, const rclcpp::Duration period)
+hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
     if(position_commands_ == prev_position_commands_)
     {
