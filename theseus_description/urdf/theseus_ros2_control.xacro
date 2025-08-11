@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="utbots_manipulator">
+
+    <ros2_control name="ManipulatorSystem" type="system">
+ 
+        <xacro:property name="PI" value="3.14159265358979323846"/>
+
+        <!-- ros2_control Gazebo only -->
+        <xacro:if value="$(arg is_sim)">
+            <xacro:if value="$(arg is_ignition)">
+                <hardware>
+                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                </hardware>
+            </xacro:if>
+            <xacro:unless value="$(arg is_ignition)">
+                <hardware>
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+                </hardware>
+            </xacro:unless>
+
+            <joint name="gripper_joint_2">
+                <param name="mimic">gripper_joint_1</param>
+                <param name="multiplier">-1</param>
+                <command_interface name="position">
+                <param name="min">0</param>
+                <param name="max">${PI/2}</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint> 
+        </xacro:if>
+
+        <!-- ros2_control real manipulator only -->
+        <xacro:unless value="$(arg is_sim)">
+            <hardware>
+                <plugin>theseus_controller/TheseusInterface</plugin>
+                <param name="port">/dev/ttyACM0</param>
+            </hardware>
+        </xacro:unless>
+
+        <joint name="arm_joint_1">
+            <command_interface name="position">
+            <param name="min">-${3*PI/4}</param>
+            <param name="max">${3*PI/4}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint>
+
+        <joint name="arm_joint_2">
+            <command_interface name="position">
+            <param name="min">-${3*PI/4}</param>
+            <param name="max">${3*PI/4}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint> 
+
+        <joint name="gripper_joint_1">
+            <command_interface name="position">
+            <param name="min">0</param>
+            <param name="max">${PI/2}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint> 
+
+    </ros2_control>
+</robot>

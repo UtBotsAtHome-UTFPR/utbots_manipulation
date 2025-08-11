@@ -1,7 +1,8 @@
 <library path="theseus_controller">
-    <class  name="theseus_controller::TheseusInterface" 
-            type="theseus_controller/TheseusInterface" 
-            base_class_type="hardware_interface::SystemInterface">
-        <description>Manipulator ardware interface</description>
+    <class  
+        name="theseus_controller/TheseusInterface" 
+        type="theseus_controller::TheseusInterface" 
+        base_class_type="hardware_interface::SystemInterface">
+        <description>Manipulator hardware interface</description>
     </class>
 </library>

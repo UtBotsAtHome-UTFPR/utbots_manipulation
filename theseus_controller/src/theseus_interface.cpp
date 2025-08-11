@@ -100,7 +100,7 @@ CallbackReturn TheseusInterface::on_activate(const rclcpp_lifecycle::State & pre
 
     try
     {
-        device_.Open(port_);
+        device_.Open(port_, std::ios::in | std::ios::out);
         device_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
     }
     catch(...)

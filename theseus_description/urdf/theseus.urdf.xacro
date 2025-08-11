@@ -2,6 +2,17 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="utbots_manipulator">
 
+    <!-- TODO Adjust all links, joints, visuals, collision and inertias for theseus -->
+
+    <xacro:arg name="is_sim" default="false" />
+    <xacro:arg name="is_ignition" default="true" />
+
+    <!-- Include Gazebo Parameters (only relevant for sim) -->
+    <xacro:include filename="$(find theseus_description)/urdf/theseus_gazebo.xacro"/>
+    <!-- Include ros2_control plugins -->
+    <xacro:include filename="$(find theseus_description)/urdf/theseus_ros2_control.xacro"/>
+
+    <!-- Useful XACRO variables -->
     <xacro:property name="PI" value="3.14159265358979323846"/>
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
@@ -9,15 +20,34 @@
     <xacro:property name="link2_length" value="0.27"/>
     <xacro:property name="finger_length" value="0.15"/>
 
+    <!-- Macros -->
+    <xacro:macro name="default_inertial" params="mass">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+                     iyy="1.0" iyz="0.0"
+                     izz="1.0"/>
+        </inertial>
+    </xacro:macro>
+
+    <!-- Links and joints -->
+
     <link name="world"/>
 
     <link name="base_link">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0.03"/>
             <geometry>
                 <cylinder radius="0.15" length="0.06"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <cylinder radius="0.15" length="0.06"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="base_arm_joint" type="fixed">
@@ -27,12 +57,19 @@
     </joint>
 
     <link name="arm_link_1">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
             <geometry>
                 <cylinder radius="0.05" length="${link1_length}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
+            <geometry>
+                <cylinder radius="0.05" length="${link1_length}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_1" type="revolute">
@@ -44,12 +81,19 @@
     </joint>
 
      <link name="arm_link_2">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
             <geometry>
                 <cylinder radius="0.05" length="${link2_length}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
+            <geometry>
+                <cylinder radius="0.05" length="${link2_length}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_2" type="revolute">
@@ -61,12 +105,19 @@
     </joint>
 
     <link name="claw_link">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0.01"/>
             <geometry>
                 <cylinder radius="0.04" length="0.02"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.01"/>
+            <geometry>
+                <cylinder radius="0.04" length="0.02"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_to_claw_joint" type="fixed">
@@ -76,21 +127,35 @@
     </joint>
 
     <link name="gripper_right">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
             <geometry>
                 <cylinder radius="0.02" length="${finger_length}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </collision>
     </link>
 
     <link name="gripper_left">
-    <visual>
-        <origin rpy="0 0 -${PI/2}" xyz="0 0.02 ${finger_length/2}"/>
-        <geometry>
-            <cylinder radius="0.02" length="${finger_length}"/>
-        </geometry>
-    </visual>
+        <xacro:default_inertial mass="1.0"/>
+        <visual>
+            <origin rpy="0 0 -${PI/2}" xyz="0 0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="gripper_joint_1" type="revolute">
@@ -106,34 +171,10 @@
         <child link="gripper_left"/>
         <axis xyz="1 0 0"/>
         <origin rpy="0 0 0" xyz="0 0 0"/>
-        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
         <mimic joint="gripper_joint_1" multiplier="-1"/>
+        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <!-- Primeiro 6cm, depois 34cm, depois 27cm -->
 
 </robot>
-
-
-<!-- <ros2_control name="TheseusSystem" type="system">
-    <hardware>
-        <plugin>mock_components/GenericSystem</plugin>
-        <param name="example_param">example_value</param>
-    </hardware>
-
-    <!-- Arm joints -->
-    <joint name="arm_joint_1">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-    </joint>
-    <joint name="arm_joint_2">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-    </joint>
-
-    <!-- Gripper joint -->
-    <joint name="gripper_joint_1">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-    </joint>
-</ros2_control> -->

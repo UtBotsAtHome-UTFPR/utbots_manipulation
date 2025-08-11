@@ -10,6 +10,7 @@ controller_manager:
 
     gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+      # type: forward_command_controller/ForwardCommandController
 
 arm_controller:
   ros__parameters:
@@ -32,6 +33,8 @@ gripper_controller:
   ros__parameters:
     joints:
       - gripper_joint_1
+
+    # interface_name: position
 
     command_interfaces:
       - position
