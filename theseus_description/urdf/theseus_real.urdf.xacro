@@ -6,13 +6,41 @@
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
 
+    <!-- Claw -->
+    <xacro:property name="finger_length" value="0.15"/>
+
+    <!-- Mesh scale -->
+    <xacro:property name="mesh_scale" value="0.003 0.003 0.003"/> 
+
+    <!-- Joint distances -->
+    <!-- They are relative to one another eg. arm_joint_2 distances are relative to arm_joint_1 position -->
+    <xacro:property name="base_arm_joint_x" value="0.0"/>
+    <xacro:property name="base_arm_joint_y" value="0.0"/> 
+    <xacro:property name="base_arm_joint_z" value="0.0"/> 
+
+    <xacro:property name="arm_joint_1_x" value="0.0"/>
+    <xacro:property name="arm_joint_1_y" value="0.0"/> 
+    <xacro:property name="arm_joint_1_z" value="0.31"/> 
+
+    <xacro:property name="arm_joint_2_x" value="0.0"/>
+    <xacro:property name="arm_joint_2_y" value="0.0"/> 
+    <xacro:property name="arm_joint_2_z" value="0.75"/> 
+
+    <xacro:property name="arm_joint_3_x" value="0.0"/>
+    <xacro:property name="arm_joint_3_y" value="-0.225"/> 
+    <xacro:property name="arm_joint_3_z" value="0.485"/> 
+
+    <xacro:property name="arm_joint_4_x" value="0.0"/>
+    <xacro:property name="arm_joint_4_y" value="-0.25"/> 
+    <xacro:property name="arm_joint_4_z" value="-0.91"/> 
+
     <link name="world"/>
 
     <link name="base_link">
         <visual>
             <origin rpy="0 0 0" xyz="-0.015 0 0.38"/>
             <geometry>
-                <mesh filename="package://manipulator_description/meshes/theseus_link_1.stl" scale="0.003 0.003 0.003"/>
+                <mesh filename="package://manipulator_description/meshes/theseus_link_1.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
     </link>
@@ -25,9 +53,10 @@
 
     <link name="arm_link_1">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.075"/>
+            <!-- 0 0 0.075 -->
+            <origin rpy="0 0 0" xyz="${arm_joint_1_x} ${arm_joint_1_y} ${arm_joint_1_z-0.235}"/>
             <geometry>
-                <mesh filename="package://manipulator_description/meshes/theseus_link_2.stl" scale="0.003 0.003 0.003"/>
+                <mesh filename="package://manipulator_description/meshes/theseus_link_2.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
     </link>
@@ -36,15 +65,16 @@
         <parent link="base_link"/>
         <child link="arm_link_1"/>
         <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 0 0.31"/>
+        <origin rpy="0 0 0" xyz="${arm_joint_1_x} ${arm_joint_1_y} ${arm_joint_1_z}"/>
         <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="arm_link_2">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 -0.66"/>
+            <!-- 0 0 -0.66 -->
+            <origin rpy="0 0 0" xyz="${arm_joint_2_x} ${arm_joint_2_y} ${arm_joint_2_z-1.41}"/>
             <geometry>
-                <mesh filename="package://manipulator_description/meshes/theseus_link_3.stl" scale="0.003 0.003 0.003"/>
+                <mesh filename="package://manipulator_description/meshes/theseus_link_3.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
     </link>
@@ -53,15 +83,16 @@
         <parent link="arm_link_1"/>
         <child link="arm_link_2"/>
         <axis xyz="0 0 1"/>
-        <origin rpy="0 0 0" xyz="0 0 0.75"/>
+        <origin rpy="0 0 0" xyz="${arm_joint_2_x} ${arm_joint_2_y} ${arm_joint_2_z}"/>
         <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="arm_link_3">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0.22 -1.15"/>
+            <!-- 0 0.22 -1.15 -->
+            <origin rpy="0 0 0" xyz="${arm_joint_3_x} ${arm_joint_3_y+0.445} ${arm_joint_3_z-1.635} 0.22 -1.15"/> 
             <geometry>
-                <mesh filename="package://manipulator_description/meshes/theseus_link_4.stl" scale="0.003 0.003 0.003"/>
+                <mesh filename="package://manipulator_description/meshes/theseus_link_4.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
     </link>
@@ -70,15 +101,16 @@
         <parent link="arm_link_2"/>
         <child link="arm_link_3"/>
         <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 -0.225 0.485"/>
+        <origin rpy="0 0 0" xyz="${arm_joint_3_x} ${arm_joint_3_y} ${arm_joint_3_z}"/>
         <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="arm_link_4">
         <visual>
-            <origin rpy="0 0 0" xyz="0 0.47 -0.24"/>
+            <!-- 0 0.47 -0.24 -->
+            <origin rpy="0 0 0" xyz="${arm_joint_4_x} ${arm_joint_4_y+0.72} ${arm_joint_4_z+0.67}"/>
             <geometry>
-                <mesh filename="package://manipulator_description/meshes/theseus_link_5.stl" scale="0.003 0.003 0.003"/>
+                <mesh filename="package://manipulator_description/meshes/theseus_link_5.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
     </link>
@@ -87,10 +119,56 @@
         <parent link="arm_link_3"/>
         <child link="arm_link_4"/>
         <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 -0.25 -0.91"/>
+        <origin rpy="0 0 0" xyz="${arm_joint_4_x} ${arm_joint_4_y} ${arm_joint_4_z}"/>
         <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+    
+    <!-- Not the real claw -->
+
+    <link name="gripper_right">
+        <visual>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="gripper_left">
+        <visual>
+            <origin rpy="0 0 -${PI/2}" xyz="0 0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <geometry>
+                <cylinder radius="0.02" length="${finger_length}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="gripper_joint_1" type="revolute">
+        <parent link="arm_joint_4"/>
+        <child link="gripper_right"/>
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
-    <!-- Primeiro 6cm, depois 34cm, depois 27cm -->
+    <joint name="gripper_joint_2" type="revolute">
+        <parent link="arm_joint_4"/>
+        <child link="gripper_left"/>
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mimic joint="gripper_joint_1" multiplier="-1"/>
+        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
 
 </robot>
