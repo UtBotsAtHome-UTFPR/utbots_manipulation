@@ -2,12 +2,26 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="utbots_manipulator">
 
+    <!-- Simulation flags for switching simulation engines before and after ROS2 Humble -->
+    <xacro:arg name="is_sim" default="false" />
+    <xacro:arg name="is_ignition" default="true" />
+    <!-- Include Gazebo Parameters (only relevant for sim) -->
+    <xacro:include filename="$(find theseus_description)/urdf/theseus_gazebo.xacro"/>
+    <!-- Include ros2_control plugins -->
+    <xacro:include filename="$(find theseus_description)/urdf/theseus_ros2_control.xacro"/>
+
+    <!-- Placeholder properties (may need changing later) -->
     <xacro:property name="PI" value="3.14159265358979323846"/>
+    <xacro:macro name="default_inertial" params="mass">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0"
+                     iyy="1.0" iyz="0.0"
+                     izz="1.0"/>
+        </inertial>
+    </xacro:macro>
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
-
-    <!-- Claw -->
-    <xacro:property name="finger_length" value="0.05"/>
 
     <!-- Mesh scale -->
     <xacro:property name="mesh_scale" value="0.003 0.003 0.003"/> 
@@ -38,15 +52,25 @@
     <xacro:property name="gripper_joint_y" value="0.0"/> 
     <xacro:property name="gripper_joint_z" value="-0.22"/> 
 
+    <xacro:property name="finger_length" value="0.05"/>
+
+    <!-- Links and Joints -->
     <link name="world"/>
 
     <link name="base_link">
+        <xacro:default_inertial mass="0.2"/>
         <visual>
             <origin rpy="0 0 0" xyz="-0.015 0 0.38"/>
             <geometry>
                 <mesh filename="package://theseus_description/meshes/theseus_link_1.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="-0.015 0 0.38"/>
+            <geometry>
+                <mesh filename="package://theseus_description/meshes/theseus_link_1.stl" scale="${mesh_scale}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="base_arm_joint" type="fixed">
@@ -56,6 +80,7 @@
     </joint>
 
     <link name="arm_link_1">
+        <xacro:default_inertial mass="1.0"/>
         <visual>
             <!-- 0 0 0.075 -->
             <origin rpy="0 0 0" xyz="${arm_joint_1_x} ${arm_joint_1_y} ${arm_joint_1_z-0.235}"/>
@@ -63,6 +88,12 @@
                 <mesh filename="package://theseus_description/meshes/theseus_link_2.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="${arm_joint_1_x} ${arm_joint_1_y} ${arm_joint_1_z-0.235}"/>
+            <geometry>
+                <mesh filename="package://theseus_description/meshes/theseus_link_2.stl" scale="${mesh_scale}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_1" type="revolute">
@@ -74,6 +105,7 @@
     </joint>
 
     <link name="arm_link_2">
+        <xacro:default_inertial mass="0.3"/>
         <visual>
             <!-- 0 0 -0.66 -->
             <origin rpy="0 0 0" xyz="${arm_joint_2_x} ${arm_joint_2_y} ${arm_joint_2_z-1.41}"/>
@@ -81,6 +113,13 @@
                 <mesh filename="package://theseus_description/meshes/theseus_link_3.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
+        <collision>
+            <!-- 0 0 -0.66 -->
+            <origin rpy="0 0 0" xyz="${arm_joint_2_x} ${arm_joint_2_y} ${arm_joint_2_z-1.41}"/>
+            <geometry>
+                <mesh filename="package://theseus_description/meshes/theseus_link_3.stl" scale="${mesh_scale}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_2" type="revolute">
@@ -92,6 +131,7 @@
     </joint>
 
     <link name="arm_link_3">
+        <xacro:default_inertial mass="0.5"/>
         <visual>
             <!-- 0 0.22 -1.15 -->
             <origin rpy="0 0 0" xyz="${arm_joint_3_x} ${arm_joint_3_y+0.445} ${arm_joint_3_z-1.635}"/> 
@@ -99,6 +139,12 @@
                 <mesh filename="package://theseus_description/meshes/theseus_link_4.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="${arm_joint_3_x} ${arm_joint_3_y+0.445} ${arm_joint_3_z-1.635}"/> 
+            <geometry>
+                <mesh filename="package://theseus_description/meshes/theseus_link_4.stl" scale="${mesh_scale}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_3" type="revolute">
@@ -110,6 +156,7 @@
     </joint>
 
     <link name="arm_link_4">
+        <xacro:default_inertial mass="0.2"/>
         <visual>
             <!-- 0 0.47 -0.24 -->
             <origin rpy="0 0 0" xyz="${arm_joint_4_x} ${arm_joint_4_y+0.72} ${arm_joint_4_z+0.67}"/>
@@ -117,6 +164,12 @@
                 <mesh filename="package://theseus_description/meshes/theseus_link_5.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="${arm_joint_4_x} ${arm_joint_4_y+0.72} ${arm_joint_4_z+0.67}"/>
+            <geometry>
+                <mesh filename="package://theseus_description/meshes/theseus_link_5.stl" scale="${mesh_scale}"/>
+            </geometry>
+        </collision>
     </link>
 
     <joint name="arm_joint_4" type="revolute">
@@ -130,6 +183,7 @@
     <!-- Not the real claw -->
 
     <link name="gripper_link">
+        <xacro:default_inertial mass="0.1"/>
         <visual>
             <origin rpy="0 ${PI/2} -${PI/2}" xyz="0 0 -0.05"/>
             <geometry>
@@ -147,12 +201,13 @@
     <joint name="gripper_joint" type="revolute">
         <parent link="arm_link_4"/>
         <child link="gripper_link"/>
-        <axis xyz="1 0 0"/>
+        <axis xyz="0 0 1"/>
         <origin rpy="0 0 0" xyz="${gripper_joint_x} ${gripper_joint_y} ${gripper_joint_z}"/>
         <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="gripper_right">
+        <xacro:default_inertial mass="0.1"/>
         <visual>
             <origin rpy="0 ${PI/2} -${PI/2}" xyz="-0 0 -${finger_length/2}"/>
             <geometry>
@@ -168,6 +223,7 @@
     </link>
 
     <link name="gripper_left">
+        <xacro:default_inertial mass="0.1"/>
         <visual>
             <origin rpy="0 ${PI/2} -${PI/2}" xyz="0 0 -${finger_length/2}"/>
             <geometry>
@@ -187,7 +243,7 @@
         <child link="gripper_right"/>
         <axis xyz="0 1 0"/>
         <origin rpy="0 0 0" xyz="${-gripper_joint_x} ${gripper_joint_y} ${gripper_joint_z}"/>
-        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="${-PI/9}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <joint name="gripper_joint_2" type="revolute">
@@ -196,7 +252,7 @@
         <axis xyz="0 1 0"/>
         <origin rpy="0 0 0" xyz="${gripper_joint_x} ${gripper_joint_y} ${gripper_joint_z}"/>
         <mimic joint="gripper_joint_1" multiplier="-1"/>
-        <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="${-PI/9}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
 </robot>

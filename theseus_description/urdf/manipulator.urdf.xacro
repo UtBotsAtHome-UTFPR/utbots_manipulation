@@ -10,7 +10,7 @@
     <!-- Include Gazebo Parameters (only relevant for sim) -->
     <xacro:include filename="$(find theseus_description)/urdf/theseus_gazebo.xacro"/>
     <!-- Include ros2_control plugins -->
-    <xacro:include filename="$(find theseus_description)/urdf/theseus_ros2_control.xacro"/>
+    <xacro:include filename="$(find theseus_description)/urdf/manipulator_ros2_control.xacro"/>
 
     <!-- Useful XACRO variables -->
     <xacro:property name="PI" value="3.14159265358979323846"/>
