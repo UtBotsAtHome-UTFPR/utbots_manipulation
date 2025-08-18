@@ -48,7 +48,7 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[{"robot_description": robot_description}],
-        # condition=UnlessCondition(is_sim)
+        condition=UnlessCondition(is_sim)
     )
 
     # Controller manager (only for real robot)
@@ -64,7 +64,7 @@ def generate_launch_description():
                 [LaunchConfiguration("model"), TextSubstitution(text="_controllers.yaml")]
             ])
         ],
-        # condition=UnlessCondition(is_sim)
+        condition=UnlessCondition(is_sim)
     )
 
     # Spawner nodes
