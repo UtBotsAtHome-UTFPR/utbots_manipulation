@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"/>
+
+<robot name="theseus">
+
+    <group name="arm">
+        <joint name="base_arm_joint"/>
+
+        <joint name="arm_joint_1"/>
+        <joint name="arm_joint_2"/>
+        <joint name="arm_joint_3"/>
+        <joint name="arm_joint_4"/>
+        <joint name="gripper_joint"/>
+    </group>
+
+    <group name="gripper">
+        <joint name="gripper_joint_1"/>
+        <joint name="gripper_joint_2"/>
+    </group>
+
+    <group_state name="home" group="arm">
+        <joint name="arm_joint_1" value="0"/>
+        <joint name="arm_joint_2" value="0"/>
+        <joint name="arm_joint_3" value="0"/>
+        <joint name="arm_joint_4" value="0"/>
+        <joint name="gripper_joint" value="0"/>
+    </group_state>
+
+    <group_state>
+        <joint name="gripper_joint_1" value="0"/>
+    </group_state>
+
+    <disable_collision link1="arm_link_1" link2="arm_link_2" reason="Never"/>
+    <disable_collision link1="arm_link_2" link2="gripper_link" reason="Never"/>
+    <disable_collision link1="gripper_left" link2="gripper_right" reason="Never"/>
+    <!-- COMPLEMENTAR -->
+</robot>
