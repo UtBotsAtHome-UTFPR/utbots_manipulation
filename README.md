@@ -1,123 +1,50 @@
 # utbots_manipulation
 
 **This stack contains packages related to manipulators, such as:**
-- 3R_Manipulator_Firmware
-- Heracles_Firmware
-- manipulator_controller_cpp
+- theseus_controller: control configurations, custom hardware interface
+- theseus_description: manipulator, controller and simulation description files
+- theseus_firmware: hardware firmware
 
-
-## Getting started
-
-### Installation
+## Installation
 
 ```bash
-cd catkin_ws/src
-git clone https://github.com/UtBot-UTFPR/custom_msg
+cd <ros2_ws>/src
 git clone --recurse-submodules https://github.com/UtBotsAtHome-UTFPR/utbots_manipulation.git
+```
+
+### Dependencies
+```bash
+sudo rosdep init
+rosdep update
+cd <ros2_ws>/src/utbots_manipulation
+rosdep install --from-paths theseus_controller theseus_description theseus_firmware -y --ignore-src
 ```
 
 ### Building
 
 ```bash
 cd ..
-catkin_make
+colcon build --packages-select theseus_controller theseus_description theseus_firmware --symlink-install
 ```
 
 ## Running
 
-See the usage explanation accessing each package in the repository or the overview below
+See the usage explanation below
 
 ## Overview
 
-### manipulator_controller_cpp
-
-#### ROS nodes:
-- **xz_controller_node**
-- Receives: Point() - goal point
-- Publishes: set_angles() - arm angles that reach the input point (in plane XZ)
-- **xy_controller_node**
-- Receives: Point() - goal point
-- Publishes: Twist() - velocity command that makes robot turn (in plane XY)
-- **setpoint_publisher_node**
-- Publishes: Point() - can define a new point by pressing space
-
-#### Arm joints
-
-```yaml
-OMB: ombro
-COT: cotovelo
-PUN: punho
-GAR: garra
+### View URDF model in rviz2
+```bash
+ros2 launch theseus_description display.launch.py
 ```
 
-#### Parameters (config/parameters.yaml)
-
-- Set arm lengths
-- Set angular corrections
-- Set acceptable yaw error (for XY twist)
-- Set Kp constant used in PID (for XY twist)
-- Set whether or not display debug info
-        ```
-#### Launch files
+### Run manipulator controller in simulation
+To initiate the simulator:
 ```bash
-roslaunch manipulator_controller_cpp setpoint_xy.launch # only xy
-roslaunch manipulator_controller_cpp setpoint_xz.launch # only xz
-roslaunch manipulator_controller_cpp setpoint_xyz.launch # combines xy and xz
+ros2 launch theseus_description gazebo.launch.py
 ```
-
----
-
-### 3R_Manipulator_Firmware
-
-- **Pre-requisite: download and install [Arduino IDE](https://www.arduino.cc/en/software)**
-
-- **Pre-requisite: custom headers compilation**
-  
-Since we have ROS custom messages defining new types of ROS messages, we need to compile them specifically for the Arduinos
+To initiate the controllers (it will run and end):
 ```bash
-# Compile catkin_ws
-cd ~/catkin_ws
-catkin_make
-# Install rosserial_arduino
-sudo apt install ros-noetic-rosserial-arduino
-# Create libraries folder
-mkdir -p ~/Arduino/libraries
-cd ~/Arduino/libraries
-# Run make_libraries in the current folder
-# Make sure you have sourced ~/catkin_ws/devel/setup.bash
-rosrun rosserial_arduino make_libraries.py .
-  ```
-  
-**Compilation (with Arduino IDE)**
-- Open Arduino IDE
-- ``File`` > ``Open...`` > ``???/utbots_manipulation/3R_Manipulator_Firmware/Point/???/file.ino``
-- Select board (Mega 2560)
-- Click Verify to check code problems
-- Plug Arduino to PC and upload the firmware to it
-
----
-
-#### Using rosserial_python to interface ROS and Arduino
-
-1. **Find out the name of the port used by the Arduino in the PC**
-2. Connect board to PC via USB
-3. Go to ``/dev/serial/by-id`` and find out the ID of your device
-  - This file is actually a symlink to the **PORT NAME**
-  - If you run ``ls -la /dev/serial/by-id/YOUR_ID``, you will find out that it points to a file called ``/dev/SOMETHING``. This is the **PORT NAME**
-  - **PORT NAME** may vary if you plug multiple devices or reset the PC
-  - **PORT ID** is static
-  - Therefore, you should use **PORT ID** whenever you can
-
-Run rosserial_python
-```bash
-# Install rosserial_python
-sudo apt install ros-noetic-rosserial-python
-rosrun rosserial_python serial_node.py _port:=/dev/PORT_NAME_OR_ID _baud:=57600
+ros2 launch theseus_controller controller.launch.py is_sim:=True
 ```
-
-**WARNING**
-Serial communication is exclusive. **This means you won't be able to simultaneously run rosserial, upload new firmware or monitor serial**
-
----
-
-### Heracles_Firmware
+The control of the manipulator is available with JointTrajectoryController (ideal for MoveIt kinematics for control)
