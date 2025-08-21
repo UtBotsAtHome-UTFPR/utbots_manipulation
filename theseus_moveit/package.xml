@@ -4,9 +4,9 @@
   <name>theseus_moveit</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the utbots_manipulator with the MoveIt Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the theseus with the MoveIt Motion Planning Framework
   </description>
-  <maintainer email="utbots.home@gmail.com">theseus</maintainer>
+  <maintainer email="utbots.home@gmail.com">utbots</maintainer>
 
   <license>BSD</license>
 
@@ -14,7 +14,7 @@
   <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit2</url>
 
-  <author email="utbots.home@gmail.com">theseus</author>
+  <author email="utbots.home@gmail.com">utbots</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

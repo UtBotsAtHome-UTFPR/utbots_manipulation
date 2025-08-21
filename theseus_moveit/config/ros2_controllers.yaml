@@ -1,18 +1,16 @@
-# This config file is used by ros2_control
+# Copy of theseus_controllers/config/theseus_controllers.yaml
 controller_manager:
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 10 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
 
     arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-
     gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-
-
-    joint_state_broadcaster:
-      type: joint_state_broadcaster/JointStateBroadcaster
 
 arm_controller:
   ros__parameters:
@@ -22,18 +20,32 @@ arm_controller:
       - arm_joint_3
       - arm_joint_4
       - gripper_joint
+
+    interface_name: position
+
     command_interfaces:
       - position
+      # - velocity
+
     state_interfaces:
       - position
-      - velocity
+      # - velocity
+
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true
+
 gripper_controller:
   ros__parameters:
     joints:
-      - gripper_joint
       - gripper_joint_1
+
+    interface_name: position
+
     command_interfaces:
       - position
+
     state_interfaces:
       - position
-      - velocity
+
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true

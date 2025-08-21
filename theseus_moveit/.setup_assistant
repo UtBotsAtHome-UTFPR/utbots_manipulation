@@ -5,15 +5,14 @@ moveit_setup_assistant_config:
   srdf:
     relative_path: config/theseus.srdf
   package_settings:
-    author_name: theseus
+    author_name: utbots
     author_email: utbots.home@gmail.com
-    generated_timestamp: 1755710540
+    generated_timestamp: 1755735341
   control_xacro:
     command:
       - position
     state:
       - position
-      - velocity
   modified_urdf:
     xacros:
       - control_xacro
@@ -22,4 +21,3 @@ moveit_setup_assistant_config:
       - position
     state:
       - position
-      - velocity

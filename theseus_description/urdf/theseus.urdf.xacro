@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="utbots_manipulator">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="theseus">
 
     <!-- Simulation flags for switching simulation engines before and after ROS2 Humble -->
     <xacro:arg name="is_sim" default="false" />

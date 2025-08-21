@@ -1,4 +1,4 @@
-# Default initial positions for utbots_manipulator's ros2_control fake system
+# Default initial positions for theseus's ros2_control fake system
 
 initial_positions:
   arm_joint_1: 0
