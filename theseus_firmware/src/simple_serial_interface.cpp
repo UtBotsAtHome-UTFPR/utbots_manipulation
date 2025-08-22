@@ -34,21 +34,22 @@ public:
     SimpleSerialInterface() : Node("simple_serial_interface")
     {
         declare_parameter(std::string("port"), "/dev/ttyUSB0");
-        srt::string port_ = get_parameter("port").as_string();
+        std::string port_ = get_parameter("port").as_string();
 
         sub_ = create_subscription<std_msgs::msg::String>("serial_transmitter", 10, std::bind(&SimpleSerialInterface::msgCallback, this, _1));
         pub_ = create_publisher<std_msgs::msg::String>("serial_receiver", 10);
-        timer_ = create_wall_timer(0.01sm std::bind(&SimpleSerialInterface::timerCallback, this));
+        using namespace std::chrono_literals;
+        timer_ = create_wall_timer(10ms, std::bind(&SimpleSerialInterface::timerCallback, this));
 
         device_.Open(port_);
-        device_.SetBaudRate(srt::BaudRate::BAUD_115200);
+        device_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
     }
     ~SimpleSerialInterface()
     {
         device_.Close();
     }
 
-    void msgCallback(const std_msgs::msg::String &msg) const
+    void msgCallback(const std_msgs::msg::String &msg)
     {
         RCLCPP_INFO_STREAM(get_logger(), "New message recieved from subscriber, sending to hardware on serial port: " << msg.data);
         device_.Write(msg.data);
@@ -60,10 +61,9 @@ public:
         if (rclcpp::ok() && device_.IsDataAvailable())
         {
             device_.ReadLine(msg.data);
+            pub_->publish(msg);
+            RCLCPP_INFO_STREAM(get_logger(), "New message recieved from hardware, publishing on topic: " << msg.data);
         }
-
-        RCLCPP_INFO_STREAM(get_logger(), "New message recieved from hardware, publishing on topic: " << msg.data);
-        
     }
 
 private:

@@ -17,14 +17,14 @@ ament_python_install_package(${PROJECT_NAME})
 
 add_executable(simple_serial_interface src/simple_serial_interface.cpp)
 ament_target_dependencies(simple_serial_interface rclcpp std_msgs)
-target_include_directories(simple_serial_interface PUBLI "${SERIAL_INCLUDE_DIRS}")
-target_link_libraries(simple_serial_interface "${SERIAL_LDFLAGS}")
 
-install(TARGETS
-  simple_serial_interface
-  ARCHIVE_DESTINATION lib
-  LIBRARY_DESTINATION lib
-  RUNTIME_DESTINATION bin
+# Includes from pkg-config
+target_include_directories(simple_serial_interface PUBLIC ${SERIAL_INCLUDE_DIRS})
+
+# Link with libserial
+target_link_libraries(simple_serial_interface ${SERIAL_LIBRARIES})
+
+install(TARGETS simple_serial_interface
   DESTINATION lib/${PROJECT_NAME}
 )
 
