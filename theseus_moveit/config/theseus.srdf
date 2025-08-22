@@ -27,7 +27,6 @@
         <link name="gripper_right"/>
         <link name="gripper_left"/>
         <joint name="gripper_joint_1"/>
-        <joint name="gripper_joint_2"/>
     </group>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="gripper_link" group="gripper"/>

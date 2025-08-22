@@ -268,13 +268,18 @@
         <limit lower="${-PI/9}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
-    <joint name="gripper_joint_2" type="revolute">
+    <joint name="gripper_joint_2_mimic" type="fixed">
         <parent link="gripper_link"/>
         <child link="gripper_left"/>
-        <axis xyz="0 1 0"/>
+        <!-- <axis xyz="0 1 0"/> -->
         <origin rpy="0 0 0" xyz="${finger_separation} 0 ${-finger_length}"/>
-        <mimic joint="gripper_joint_1" multiplier="-1"/>
-        <limit lower="${-PI/9}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <!-- <mimic joint="gripper_joint_1" multiplier="-1"/>
+        <limit lower="${-PI/9}" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/> -->
     </joint>
+
+    <!-- <joint name="gripper_joint_2_mimic" type="fixed">
+    <parent link="world" />
+    <child link="gripper_left" />
+    </joint> -->
 
 </robot>

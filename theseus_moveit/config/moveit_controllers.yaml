@@ -9,6 +9,8 @@ moveit_simple_controller_manager:
 
   arm_controller:
     type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
     joints:
       - arm_joint_1
       - arm_joint_2
@@ -17,6 +19,6 @@ moveit_simple_controller_manager:
       - gripper_joint
   gripper_controller:
     type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
     joints:
-      - gripper_joint
       - gripper_joint_1
