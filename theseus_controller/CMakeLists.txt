@@ -23,7 +23,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   "${SERIAL_INCLUDE_DIRS}"
 )
 target_link_libraries(${PROJECT_NAME}
-"${SERIAL_LDFLAGS}"
+  "${SERIAL_LDFLAGS}"
+  "${SERIAL_LIBRARIES}"
 )
 ament_target_dependencies(${PROJECT_NAME}
   hardware_interface
