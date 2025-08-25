@@ -24,8 +24,7 @@ target_include_directories(simple_serial_interface PRIVATE
 )
 
 target_link_libraries(simple_serial_interface
-  "${SERIAL_LDFLAGS}"
-  "${SERIAL_LIBRARIES}"
+  ${SERIAL_LIBRARIES}
 )
 
 install(TARGETS simple_serial_interface

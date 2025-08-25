@@ -13,7 +13,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(SERIAL libserial)
+# pkg_check_modules(SERIAL libserial)
 
 add_library(${PROJECT_NAME} SHARED
   src/theseus_interface.cpp
@@ -23,8 +23,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   "${SERIAL_INCLUDE_DIRS}"
 )
 target_link_libraries(${PROJECT_NAME}
-  "${SERIAL_LDFLAGS}"
-  "${SERIAL_LIBRARIES}"
+  # Link against libserial
+  ${SERIAL_LIBRARIES}
 )
 ament_target_dependencies(${PROJECT_NAME}
   hardware_interface

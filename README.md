@@ -20,6 +20,20 @@ cd <ros2_ws>/src/utbots_manipulation
 rosdep install --from-paths theseus_controller theseus_description theseus_firmware -y --ignore-src
 ```
 
+As of now, we need to build libserial in theseus_controller from source:
+```bash
+mkdir serial_dir
+cd serial_dir
+git clone https://github.com/crayzeewulf/libserial.git
+cd libserial
+./compile.sh
+cd build
+sudo make install
+```
+Link path of library:
+```bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/ # if error in build, run <find /usr -name "libserial.so.1"> and add the path returned by the command
+```
 ### Building
 
 ```bash

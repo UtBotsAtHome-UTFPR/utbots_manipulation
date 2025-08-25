@@ -10,8 +10,8 @@ struct ServoMotor {
 };
 
 // Create and initialize in one line
-ServoMotor base = {Servo(), 22, 0, 130};      // Base joint (160kgcm)
-ServoMotor shoulder = {Servo(), 24, 0, 130};  // Shoulder joint (80kgcm)
+ServoMotor base = {Servo(), 22, 0, 135};      // Base joint (160kgcm)
+ServoMotor shoulder = {Servo(), 24, 0, 135};  // Shoulder joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
@@ -34,22 +34,22 @@ int scaledAngle(int goal, int maxUsable) {
 }
 
 void servo_reach_goal(ServoMotor &motor, int goal) {
-    motor.servo.write(scaledAngle(goal, motor.max_usable_angle));
+    goal = scaledAngle(goal, motor.max_usable_angle);
 //      motor.write(goal);
-//    if(goal>=motor.read())
-//    {
-//        for(int pos = motor.read(); pos <= goal; pos++) {
-//            motor.write(pos);
-//            delay(5);
-//        }
-//    }
-//    else
-//    {
-//        for(int pos = motor.read(); pos >= goal; pos--) {
-//            motor.write(pos);
-//            delay(5);
-//        }
-//    }
+    if(goal>=motor.servo.read())
+    {
+        for(int pos = motor.servo.read(); pos <= goal; pos++) {
+            motor.servo.write(pos);
+            delay(5);
+        }
+    }
+    else
+    {
+        for(int pos = motor.servo.read(); pos >= goal; pos--) {
+            motor.servo.write(pos);
+            delay(5);
+        }
+    }
 }
 
 
