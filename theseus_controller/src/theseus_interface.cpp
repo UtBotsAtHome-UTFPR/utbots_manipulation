@@ -174,6 +174,18 @@ hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & tim
     }
 
     prev_position_commands_ = position_commands_; // Update previous commands to current commands
+        
+    // Print the whole command vector nicely
+    std::ostringstream oss;
+    oss << "[ ";
+    for (size_t i = 0; i < position_commands_.size(); ++i) {
+        oss << position_commands_[i];
+        if (i < position_commands_.size() - 1) oss << ", ";
+    }
+    oss << " ]";
+
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("TheseusInterface"),
+                       "Received position commands: " << oss.str());
     RCLCPP_INFO_STREAM(rclcpp::get_logger("TheseusInterface"), "Sent commands to hardware: " << msg);
     return hardware_interface::return_type::OK;
 }

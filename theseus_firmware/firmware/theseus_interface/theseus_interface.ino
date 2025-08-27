@@ -10,8 +10,8 @@ struct ServoMotor {
 };
 
 // Create and initialize in one line
-ServoMotor base = {Servo(), 22, 0, 135};      // Base joint (160kgcm)
-ServoMotor shoulder = {Servo(), 24, 0, 135};  // Shoulder joint (80kgcm)
+ServoMotor base = {Servo(), 22, 0, 270};      // Base joint (160kgcm)
+ServoMotor shoulder = {Servo(), 24, 0, 270};  // Shoulder joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
@@ -30,7 +30,7 @@ void testServoPulseRange(Servo motor){
 
 // Maps an input angle (0–180) to servo's usable range
 int scaledAngle(int goal, int maxUsable) {
-    return map(goal, 0, 180, 0, maxUsable);
+    return map(goal, 0, 360, 0, maxUsable);
 }
 
 void servo_reach_goal(ServoMotor &motor, int goal) {
@@ -59,8 +59,8 @@ void setup() {
     shoulder.servo.attach(shoulder.pin);
 
     // Initialize joints to their starting positions
-    servo_reach_goal(base, base.start_angle);
-    servo_reach_goal(shoulder, shoulder.start_angle);
+    // servo_reach_goal(base, base.start_angle);
+    // servo_reach_goal(shoulder, shoulder.start_angle);
 
     Serial.begin(115200); // Initialize serial communication at 115200 baud
     Serial.setTimeout(1); // Set a timeout for serial read operations
