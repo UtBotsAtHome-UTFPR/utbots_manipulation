@@ -34,22 +34,30 @@
         <xacro:unless value="$(arg is_sim)">
             <hardware>
                 <plugin>theseus_controller/TheseusInterface</plugin>
-                <param name="port">/dev/ttyACM0</param>
+                <param name="port">/dev/ttyUSB0</param>
             </hardware>
         </xacro:unless>
 
         <joint name="arm_joint_1">
             <command_interface name="position">
-            <param name="min">-${3*PI/4}</param>
-            <param name="max">${3*PI/4}</param>
+            <param name="min">0</param>
+            <param name="max">${3*PI/2}</param>
             </command_interface>
             <state_interface name="position"/>
         </joint>
 
         <joint name="arm_joint_2">
             <command_interface name="position">
-            <param name="min">-${3*PI/4}</param>
-            <param name="max">${3*PI/4}</param>
+            <param name="min">0</param>
+            <param name="max">${3*PI/2}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint> 
+
+        <joint name="arm_joint_3">
+            <command_interface name="position">
+            <param name="min">0</param>
+            <param name="max">${3*PI/2}</param>
             </command_interface>
             <state_interface name="position"/>
         </joint> 
