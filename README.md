@@ -22,6 +22,11 @@ rosdep install --from-paths theseus_controller theseus_description theseus_firmw
 
 As of now, we need to build libserial in theseus_controller from source:
 ```bash
+sudo apt update
+sudo apt install g++ git autogen autoconf build-essential cmake graphviz \
+                 libboost-dev libboost-test-dev libgtest-dev libtool \
+                 python3-sip-dev doxygen python3-sphinx pkg-config \
+                 python3-sphinx-rtd-theme
 mkdir serial_dir
 cd serial_dir
 git clone https://github.com/crayzeewulf/libserial.git
