@@ -35,21 +35,22 @@ int scaledAngle(int goal, int maxUsable) {
 
 void servo_reach_goal(ServoMotor &motor, int goal) {
     goal = scaledAngle(goal, motor.max_usable_angle);
+    motor.servo.write(goal);
 //      motor.write(goal);
-    if(goal>=motor.servo.read())
-    {
-        for(int pos = motor.servo.read(); pos <= goal; pos++) {
-            motor.servo.write(pos);
-            delay(50);
-        }
-    }
-    else
-    {
-        for(int pos = motor.servo.read(); pos >= goal; pos--) {
-            motor.servo.write(pos);
-            delay(5);
-        }
-    }
+    // if(goal>=motor.servo.read())
+    // {
+    //     for(int pos = motor.servo.read(); pos <= goal; pos++) {
+    //         motor.servo.write(pos);
+    //         delay(50);
+    //     }
+    // }
+    // else
+    // {
+    //     for(int pos = motor.servo.read(); pos >= goal; pos--) {
+    //         motor.servo.write(pos);
+    //         delay(5);
+    //     }
+    // }
 }
 
 
