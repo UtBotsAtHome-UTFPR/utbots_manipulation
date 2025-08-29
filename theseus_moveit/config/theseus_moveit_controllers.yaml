@@ -15,8 +15,8 @@ moveit_simple_controller_manager:
       - arm_joint_1
       - arm_joint_2
       - arm_joint_3
-      # - arm_joint_4
-      # - gripper_joint
+      - arm_joint_4
+      - gripper_joint
   gripper_controller:
     type: FollowJointTrajectory
     action_ns: follow_joint_trajectory

@@ -23,7 +23,7 @@
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
 
-    <!-- Mesh scale -->
+    <!-- Mesh rendering properties -->
     <xacro:property name="mesh_scale" value="0.003 0.003 0.003"/> 
     <material name="default_red">
         <color rgba="0.8 0.2 0.2 1"/>

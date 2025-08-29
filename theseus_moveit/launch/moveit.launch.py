@@ -40,6 +40,12 @@ def generate_launch_description():
             f"{model}.srdf"
         )
 
+        moveit_controller_file_path = os.path.join(
+            get_package_share_directory("theseus_moveit"),
+            "config",
+            f"{model}_moveit_controllers.yaml"
+        )
+
         print(f"[INFO] Resolved xacro file path: {xacro_file_path}")
 
         # Create MoveIt configuration

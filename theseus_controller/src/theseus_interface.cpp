@@ -151,22 +151,29 @@ hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & tim
     }
 
     std::string msg;
-    int base = static_cast<int>((position_commands_.at(0) * 180) / M_PI + (1.5*M_PI)); 
-    msg.append("b");
-    msg.append(compensateZeros(base));
-    msg.append(std::to_string(base));
-    msg.append(",");
-    int shoulder = static_cast<int>((position_commands_.at(1) * 180) / M_PI + (1.5*M_PI)); 
+    // int base = static_cast<int>((position_commands_.at(0) * 180) / M_PI + (135)); 
+    // msg.append("b");
+    // msg.append(compensateZeros(base));
+    // msg.append(std::to_string(base));
+    // msg.append(",");
+    int shoulder = static_cast<int>((position_commands_.at(1) * 180) / M_PI + (135)); 
     msg.append("s");
     msg.append(compensateZeros(shoulder));
     msg.append(std::to_string(shoulder));
+    msg.append(",");
+    int elbow = static_cast<int>((position_commands_.at(2) * 180) / M_PI + (135)); 
+    msg.append("e");
+    msg.append(compensateZeros(elbow));
+    msg.append(std::to_string(elbow));
     msg.append(",");
     //Add gripper
 
     try
     {
         device_.Write(msg);
-
+        std::string response;
+        device_.ReadLine(response, '\n', 100); // Read until newline or timeout (100 ms)
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("TheseusInterface"), "Received response from hardware: " << response);
     } catch(...)
     {
         RCLCPP_FATAL_STREAM(rclcpp::get_logger("TheseusInterface"), "Something went wrong while writing to port " << port_);

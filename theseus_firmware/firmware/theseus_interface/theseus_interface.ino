@@ -10,8 +10,8 @@ struct ServoMotor {
 };
 
 // Create and initialize in one line
-ServoMotor base = {Servo(), 22, 0, 270};      // Base joint (160kgcm)
-ServoMotor shoulder = {Servo(), 24, 0, 270};  // Shoulder joint (80kgcm)
+ServoMotor shoulder = {Servo(), 24, 0, 270};      // shoulder joint (160kgcm)
+ServoMotor elbow = {Servo(), 22, 0, 270};  // elbow joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
@@ -40,7 +40,7 @@ void servo_reach_goal(ServoMotor &motor, int goal) {
     {
         for(int pos = motor.servo.read(); pos <= goal; pos++) {
             motor.servo.write(pos);
-            delay(5);
+            delay(50);
         }
     }
     else
@@ -55,12 +55,12 @@ void servo_reach_goal(ServoMotor &motor, int goal) {
 
 void setup() {
     // Attach servo joints to their respective pins
-    base.servo.attach(base.pin);
     shoulder.servo.attach(shoulder.pin);
+    elbow.servo.attach(elbow.pin);
 
     // Initialize joints to their starting positions
-    // servo_reach_goal(base, base.start_angle);
     // servo_reach_goal(shoulder, shoulder.start_angle);
+    // servo_reach_goal(elbow, elbow.start_angle);
 
     Serial.begin(115200); // Initialize serial communication at 115200 baud
     Serial.setTimeout(1); // Set a timeout for serial read operations
@@ -74,20 +74,20 @@ void loop() {
 
             b<angle_value>,s<angle_value>
 
-            - b: base joint
-            - s : shoulder joint.
+            - s: shoulder joint
+            - e : elbow joint.
 
         */
         char chr = Serial.read();
         Serial.println(chr);
-        if(chr == 'b')
-        {
-            joint_idx = 0;
-            angle_value_idx = 0; // Reset angle value index
-        } 
-        else if (chr == 's')
+        if(chr == 's')
         {
             joint_idx = 1;
+            angle_value_idx = 0; // Reset angle value index
+        } 
+        else if (chr == 'e')
+        {
+            joint_idx = 2;
             angle_value_idx = 0; // Reset angle value index
         }
         /* Finalized the parsing of a joint, send the angle for the joint */
@@ -95,15 +95,15 @@ void loop() {
         {
             Serial.println(String(joint_idx));
             int angle = atoi(angle_value); // Convert the angle value string to an integer
-            if (joint_idx == 0) 
-            {
-                Serial.println("Sending base joint to : " + String(angle));
-                servo_reach_goal(base, angle);
-            } 
-            else if (joint_idx == 1) 
+            if (joint_idx == 1) 
             {
                 Serial.println("Sending shoulder joint to : " + String(angle));
                 servo_reach_goal(shoulder, angle);
+            } 
+            else if (joint_idx == 2) 
+            {
+                Serial.println("Sending elbow joint to : " + String(angle));
+                servo_reach_goal(elbow, angle);
             }
 
             // Reset angle value for the next joint

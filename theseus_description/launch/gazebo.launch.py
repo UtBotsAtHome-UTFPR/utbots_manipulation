@@ -5,7 +5,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, TextSubstitution, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -13,11 +14,15 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     theseus_description_dir = get_package_share_directory("theseus_description")
 
+    # Declare model name as a launch argument
     model_arg = DeclareLaunchArgument(
-        name="model", 
-        default_value=os.path.join(get_package_share_directory("theseus_description"), "urdf", "theseus.urdf.xacro"),
-        description="Absolute path to the robot URDF file"
+        name="model",
+        default_value="theseus",
+        description="Manipulator name suffix (e.g., theseus)"
     )
+
+    # Build the robot_description using xacro
+    xacro_filename = [LaunchConfiguration("model"), TextSubstitution(text=".urdf.xacro")]
 
     gazebo_resource_path = SetEnvironmentVariable(
         name="GZ_SIM_RESOURCE_PATH",
@@ -30,14 +35,20 @@ def generate_launch_description():
     is_ignition = "True" if ros_distro == "humble" else "False"
     physics_engine= "" if ros_distro == "humble" else "--physics-engine gz-physics-bullet-featherstone-plugin"
 
-    robot_description = ParameterValue(Command([
-        "xacro ", 
-        LaunchConfiguration("model"),
-        " is_ignition:=",
-        is_ignition,
-        " is_sim:=True"
+    robot_description = ParameterValue(
+        Command([
+            "xacro ",
+            PathJoinSubstitution([
+                FindPackageShare("theseus_description"),
+                "urdf",
+                TextSubstitution(text=""),
+                xacro_filename
+            ]),
+            " is_sim:=true",
+            " is_ignition:=", is_ignition
         ]),
-        value_type=str)
+        value_type=str
+    )
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -63,7 +74,7 @@ def generate_launch_description():
         executable="create",
         output="screen",
         arguments=["-topic", "robot_description",
-                   "-name", "theseus"]
+                   "-name", "manipulator"]
     )
 
     gz_ros2_bridge = Node(
