@@ -218,6 +218,14 @@
         </collision>
     </link>
 
+    <link name="gripper_center"/>
+
+    <joint name="gripper_center_joint" type="fixed">
+        <parent link="gripper_link"/>
+        <child link="gripper_center"/>
+        <origin rpy="0 ${PI/2} -${PI/2}" xyz="-0 0 -${3*finger_length}"/>
+    </joint>
+
     <joint name="gripper_joint" type="revolute">
         <parent link="arm_link_4"/>
         <child link="gripper_link"/>

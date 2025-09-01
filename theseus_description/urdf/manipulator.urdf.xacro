@@ -150,6 +150,14 @@
         <origin rpy="0 0 0" xyz="0 0 ${link2_length}"/>
     </joint>
 
+    <link name="gripper_center"/>
+
+    <joint name="gripper_center_joint">
+        <parent link="claw_link"/>
+        <child link="gripper_center"/>
+        <origin rpy="0 0 0" xyz="0 0 ${-finger_length/2}"/>
+    </joint>
+
     <link name="gripper_right">
         <xacro:default_inertial mass="1.0"/>
         <visual>
