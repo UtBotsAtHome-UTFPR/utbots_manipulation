@@ -8,7 +8,7 @@
     <xacro:arg name="is_ignition" default="true" />
 
     <!-- Include Gazebo Parameters (only relevant for sim) -->
-    <xacro:include filename="$(find theseus_description)/urdf/manipulator_gazebo.xacro"/>
+    <!-- <xacro:include filename="$(find theseus_description)/urdf/manipulator_gazebo.xacro"/> -->
     <!-- Include ros2_control plugins -->
     <xacro:include filename="$(find theseus_description)/urdf/manipulator_ros2_control.xacro"/>
 
@@ -16,8 +16,8 @@
     <xacro:property name="PI" value="3.14159265358979323846"/>
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
-    <xacro:property name="link1_length" value="0.34"/>
-    <xacro:property name="link2_length" value="0.27"/>
+    <xacro:property name="link1_length" value="0.275"/>
+    <xacro:property name="link2_length" value="0.235"/>
     <xacro:property name="finger_length" value="0.15"/>
 
     <!-- Macros -->
@@ -37,15 +37,15 @@
     <link name="base_link">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <cylinder radius="0.15" length="0.06"/>
+                <cylinder radius="0.15" length="0.01"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <cylinder radius="0.15" length="0.06"/>
+                <cylinder radius="0.15" length="0.01"/>
             </geometry>
         </collision>
     </link>
@@ -59,15 +59,15 @@
     <link name="arm_link_1">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 0.025"/>
             <geometry>
-                <cylinder radius="0.05" length="0.06"/>
+                <cylinder radius="0.08" length="0.025"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 0.025"/>
             <geometry>
-                <cylinder radius="0.05" length="0.06"/>
+                <cylinder radius="0.08" length="0.025"/>
             </geometry>
         </collision>
     </link>
@@ -76,8 +76,30 @@
         <parent link="base_link"/>
         <child link="arm_link_1"/>
         <axis xyz="0 0 1"/>
-        <origin rpy="0 0 0" xyz="0 0 0.06"/>
-        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
+        <origin rpy="0 0 0" xyz="0.025 0 0.04"/>
+        <limit lower="0" upper="${2*PI}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+    <link name="motor_link_1">
+        <xacro:default_inertial mass="1.0"/>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <box size="0.05 0.03 0.06"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <box size="0.05 0.03 0.06"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="motor_joint_1" type="fixed">
+        <parent link="arm_link_1"/>
+        <child link="motor_link_1"/>
+        <origin rpy="${PI/4} 0 0" xyz="0 0 0.03"/>
     </joint>
 
     <link name="arm_link_2">
@@ -85,22 +107,68 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="${link1_length}"/>
+                <cylinder radius="0.02" length="${link1_length}"/>
             </geometry>
         </visual>
         <collision>
             <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="${link1_length}"/>
+                <cylinder radius="0.02" length="${link1_length}"/>
             </geometry>
         </collision>
     </link>
 
     <joint name="arm_joint_2" type="revolute">
-        <parent link="arm_link_1"/>
+        <parent link="motor_link_1"/>
         <child link="arm_link_2"/>
-        <axis xyz="0 1 0"/>
+        <axis xyz="1 0 0"/>
         <origin rpy="0 0 0" xyz="0 0 0.06"/>
+        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+
+    <link name="motor_link_2">
+        <xacro:default_inertial mass="1.0"/>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <box size="0.05 0.03 0.06"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <geometry>
+                <box size="0.05 0.03 0.06"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="motor_joint_2" type="fixed">
+        <parent link="arm_link_2"/>
+        <child link="motor_link_2"/>
+        <origin rpy="0 0 0" xyz="0 0 ${link2_length}"/>
+    </joint>
+
+    <link name="hinge_link_2">
+        <xacro:default_inertial mass="1.0"/>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <geometry>
+                <box size="0.065 0.03 0.035"/>
+            </geometry>
+        </visual>
+        <!-- <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <geometry>
+                <box size="0.065 0.03 0.035"/>
+            </geometry>
+        </collision> -->
+    </link>
+
+    <joint name="hinge_joint_2" type="revolute">
+        <parent link="motor_link_2"/>
+        <child link="hinge_link_2"/>
+        <origin rpy="0 0 0" xyz="0 0 0.06"/>
+        <axis xyz="1 0 0"/>
         <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
@@ -109,23 +177,21 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="${link2_length}"/>
+                <cylinder radius="0.02" length="${link2_length}"/>
             </geometry>
         </visual>
         <collision>
             <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
             <geometry>
-                <cylinder radius="0.05" length="${link2_length}"/>
+                <cylinder radius="0.02" length="${link2_length}"/>
             </geometry>
         </collision>
     </link>
 
-    <joint name="arm_joint_3" type="revolute">
-        <parent link="arm_link_2"/>
+    <joint name="arm_joint_3" type="fixed">
+        <parent link="hinge_link_2"/>
         <child link="arm_link_3"/>
-        <axis xyz="0 1 0"/>
-        <origin rpy="0 0 0" xyz="0 0 ${link1_length}"/>
-        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
+        <origin rpy="0 0 0" xyz="0 0 0.035"/>
     </joint>
 
     <link name="claw_link">
@@ -152,7 +218,7 @@
 
     <link name="gripper_center"/>
 
-    <joint name="gripper_center_joint">
+    <joint name="gripper_center_joint" type="fixed">
         <parent link="claw_link"/>
         <child link="gripper_center"/>
         <origin rpy="0 0 0" xyz="0 0 ${-finger_length/2}"/>
