@@ -10,8 +10,8 @@ struct ServoMotor {
 };
 
 // Create and initialize in one line
-ServoMotor shoulder = {Servo(), 24, 0, 270};      // shoulder joint (160kgcm)
-ServoMotor elbow = {Servo(), 22, 0, 270};  // elbow joint (80kgcm)
+ServoMotor shoulder = {Servo(), 16, 0, 270};      // shoulder joint (160kgcm)
+ServoMotor elbow = {Servo(), 17, 0, 270};  // elbow joint (80kgcm)
 
 /* Support variables for saving the decoded angle */
 uint8_t joint_idx = 0; // Index for the current joint being controlled
