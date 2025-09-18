@@ -1,21 +1,49 @@
 #include <AccelStepper.h>
 
-// Define stepper motor connections for RAMPS 1.4
-// Example: X-axis driver → STEP pin 54, DIR pin 55 (on Arduino Mega with RAMPS)
-#define X_STEP_PIN A0
-#define X_DIR_PIN A1
-#define X_ENABLE_PIN 38
+struct StepperMotor {
+    AccelStepper stepper;   // The actual stepper object
+    uint8_t step_pin;
+    uint8_t dir_pin;
+    uint8_t enable_pin;
+    int reduc;
+    int steps_per_rev;
+    int max_speed;
+    int max_accel;
+    int start_angle;
 
-// Create stepper instance in DRIVER mode (step/dir)
-AccelStepper stepper(AccelStepper::DRIVER, X_STEP_PIN, X_DIR_PIN);
+    // Constructor for convenience
+    StepperMotor(uint8_t stepPin, uint8_t dirPin, uint8_t enablePin,
+                 int reducVal, int steps_per_rev, int maxSpd, int maxAcc, int startAng)
+      : stepper(AccelStepper::DRIVER, stepPin, dirPin),
+        step_pin(stepPin),
+        dir_pin(dirPin),
+        enable_pin(enablePin),
+        reduc(reducVal),
+        steps_per_rev(steps_per_rev),
+        max_speed(maxSpd),
+        max_accel(maxAcc),
+        start_angle(startAng) {}
+};
+
+StepperMotor stepper(A0, A1, 38,
+             1,
+             200,
+             6000, // steps per second
+             200,  // steps per second^2
+             180);  // initial position
+
+int angleToSteps(int angle, StepperMotor motor) {
+  float deg_per_step = 360 / motor.steps_per_rev;
+  return (int) angle / deg_per_step; 
+}
 
 void setup() {
-  pinMode(X_ENABLE_PIN, OUTPUT);
-  digitalWrite(X_ENABLE_PIN, LOW); // Enable driver (LOW = enabled on RAMPS)
+  pinMode(stepper.enable_pin, OUTPUT);
+  digitalWrite(stepper.enable_pin, LOW); // Enable driver (LOW = enabled on RAMPS)
 
-  stepper.setMaxSpeed(5000);   // steps per second
-  stepper.setAcceleration(200); // steps per second^2
-  stepper.moveTo(20000);        // target position (steps)
+  stepper.setMaxSpeed(stepper.max_speed);   
+  stepper.setAcceleration(stepper.max_accel); 
+  stepper.moveTo(angleToSteps(stepper.start_angle));
 }
 
 void loop() {
