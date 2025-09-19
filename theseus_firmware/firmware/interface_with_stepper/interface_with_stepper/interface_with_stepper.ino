@@ -2,6 +2,7 @@
 #include <AccelStepper.h>
 
 #define SERVO_DELAY 20 // Reduced delay for smoother, faster movement
+#define HOMING_SPEED -6000
 
 /*
 ================================================================================
@@ -28,6 +29,7 @@ struct StepperMotor {
     int max_speed;
     int max_accel;
     int start_angle;
+    int current_angle;
 };
 
 /*
@@ -36,7 +38,7 @@ MOTOR CONTROL FUNCTIONS
 ================================================================================
 */
 
-// CORRECTED: Maps an input angle (0–360) to servo's usable range
+// Maps an input angle (0–360) to servo's usable range
 int scaledAngle(int goal, int maxUsable) {
     return map(goal, 0, 360, 0, maxUsable);
 }
@@ -58,21 +60,28 @@ void servoReachGoal(ServoMotor &motor, int goal) {
     }
 }
 
-int angleToSteps(int angle, int steps_per_rev) {
-    // Convert angle to steps based on the motor's steps per revolution
-    // Note: This assumes no reduction (reduc = 1)
-    long steps = map(angle, 0, 360, 0, steps_per_rev);
+long angleToSteps(int angle, StepperMotor stepper) {
+    Serial.println("Goal angle to motor:");
+    Serial.println(angle);
+
+    // Direct formula instead of map()
+    long steps = (long)angle * stepper.steps_per_rev * stepper.reduc / 360;
+
+    Serial.println("Sending steps to motor:");
+    Serial.println(steps);
+
     return steps;
 }
 
-// CORRECTED: Homing function with proper logic
+
 void resetStepperPosition(AccelStepper &stepper, uint8_t endstop_pin) {
-    // Note: Assumes the endstop reads LOW when pressed. If it's the opposite, change to HIGH.
     // Set a moderate speed for homing
-    stepper.setSpeed(-200); // Negative speed to move towards the endstop
+    stepper.setSpeed(HOMING_SPEED); // Negative speed to move towards the endstop
 
     // Move until the endstop is pressed
+    Serial.println("Starting homing procedure...");
     while (digitalRead(endstop_pin) == HIGH) {
+        Serial.println("Homing...");
         stepper.runSpeed();
     }
 
@@ -82,51 +91,76 @@ void resetStepperPosition(AccelStepper &stepper, uint8_t endstop_pin) {
     Serial.println("Base homed.");
 }
 
-
 /*
 ================================================================================
 MOTOR AND JOINT DEFINITIONS
 ================================================================================
 */
 /* Definition of each joint */
-ServoMotor shoulder = {16, 
+ServoMotor shoulder = {Servo(),
+                      16, 
                       0, 
-                      270);      // shoulder joint (160kgcm)
+                      270};      // shoulder joint (160kgcm)
 
-ServoMotor elbow    = {17, 
+ServoMotor elbow    = {Servo(),
+                      17, 
                       0, 
-                      270);  // elbow joint (80kgcm)
+                      270};  // elbow joint (80kgcm)
 
-StepperMotor base   = {A0, A1, 38, 2,
-                      1,
+#define baseStepPin A0
+#define baseDirPin A1
+StepperMotor base   = {AccelStepper(AccelStepper::DRIVER, baseStepPin, baseDirPin),
+                      baseStepPin, baseDirPin, 38, 18,
+                      99,
                       3200,
                       6000, // steps per second
-                      200,  // steps per second^2
-                      180};  // initial position
-
+                      1000,  // steps per second^2
+                      0,  // initial position
+                      0};  
+                      
+void resetStepperReference() {
+    base.current_angle = 135;
+}
                     
 void setup() {
+    pinMode(base.enable_pin, OUTPUT);
+    pinMode(base.dir_pin, OUTPUT);
+    pinMode(base.step_pin, OUTPUT);
+    pinMode(base.endstop_pin, INPUT);
+    pinMode(shoulder.pin, OUTPUT);
+    pinMode(elbow.pin, OUTPUT);
+
+    // Attach the interrupt to the endstop pin
+    attachInterrupt(digitalPinToInterrupt(base.endstop_pin), resetStepperReference, FALLING);
+    
     // Attach servo joints to their respective pins
     shoulder.servo.attach(shoulder.pin);
     elbow.servo.attach(elbow.pin);
+    digitalWrite(base.enable_pin, LOW);
+    base.stepper.setMaxSpeed(base.max_speed);      // steps per second
+    base.stepper.setAcceleration(base.max_accel);   // steps per second^2
+
+    Serial.begin(115200); // Initialize serial communication at 115200 baud
+    Serial.setTimeout(1); // Set a timeout for serial read operations
+    Serial.println("Setup ok");
     
     // Initialize joints to their starting positions
     servoReachGoal(shoulder, shoulder.start_angle);
     servoReachGoal(elbow, elbow.start_angle);
     resetStepperPosition(base.stepper, base.endstop_pin);
-    base.stepper.moveTo(angleToSteps(base.start_angle, base.steps_per_rev));
-
-    Serial.begin(115200); // Initialize serial communication at 115200 baud
-    Serial.setTimeout(1); // Set a timeout for serial read operations
-    Serial.println("Setup ok");
+    base.stepper.moveTo(angleToSteps(base.start_angle, base));
 }
 
-void loop() {
-    /* Support variables for saving the decoded angle */
-    uint8_t joint_idx = 0; // Index for the current joint being controlled
-    uint8_t angle_value_idx = 0; // Value for the current joint
-    char angle_value[4] = "000";
+/* Support variables for saving the decoded angle */
+uint8_t joint_idx = 0; // Index for the current joint being controlled
+uint8_t angle_value_idx = 0; // Value for the current joint
+char angle_value[4] = "000";
 
+void loop() {
+
+    if(base.stepper.distanceToGo() != 0) {
+        base.stepper.run();
+    }
     if (Serial.available()) 
     {
         /* Decode the custom serial protocol, it follows the following basic structure:
@@ -139,6 +173,7 @@ void loop() {
         */
         char chr = Serial.read();
         Serial.println(chr);
+        
         if (chr == 'b')
         {
             joint_idx = 0;
@@ -162,7 +197,7 @@ void loop() {
             if (joint_idx == 0)
             {
                 Serial.println("Sending base joint to: " + String(angle));
-                base.stepper.moveTo(angleToSteps(angle, base.steps_per_rev));
+                base.stepper.moveTo(angleToSteps(angle, base));
             }
             else if (joint_idx == 1) 
             {
