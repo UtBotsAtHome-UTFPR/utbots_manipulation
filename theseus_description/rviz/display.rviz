@@ -3,9 +3,10 @@ Panels:
     Help Height: 70
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /Global Options1
       Splitter Ratio: 0.5
-    Tree Height: 296
+    Tree Height: 238
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
@@ -60,7 +61,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        base_link:
+        base_arm_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -70,12 +71,36 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        gripper_center:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         gripper_left:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
         gripper_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hinge_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hinge_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        motor_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        motor_link_2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -101,13 +126,23 @@ Visualization Manager:
           Value: true
         arm_link_2:
           Value: true
-        base_link:
+        base_arm_link:
           Value: true
         claw_link:
+          Value: true
+        gripper_center:
           Value: true
         gripper_left:
           Value: true
         gripper_right:
+          Value: true
+        hinge_link_1:
+          Value: true
+        hinge_link_2:
+          Value: true
+        motor_link_1:
+          Value: true
+        motor_link_2:
           Value: true
         world:
           Value: true
@@ -118,20 +153,26 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          base_link:
-            arm_link_1:
-              arm_link_2:
-                claw_link:
-                  gripper_left:
-                    {}
-                  gripper_right:
-                    {}
+          base_arm_link:
+            motor_link_1:
+              hinge_link_1:
+                arm_link_1:
+                  motor_link_2:
+                    hinge_link_2:
+                      arm_link_2:
+                        claw_link:
+                          gripper_center:
+                            {}
+                          gripper_left:
+                            {}
+                          gripper_right:
+                            {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -166,12 +207,12 @@ Visualization Manager:
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 800
+  Height: 704
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001cb000002c6fc0200000002fb000000100044006900730070006c006100790073010000003d000001ab000000c900fffffffb0000000a0056006900650077007301000001ee00000115000000a400ffffff000002df000002c600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001cb00000266fc0200000002fb000000100044006900730070006c006100790073010000003d00000171000000c900fffffffb0000000a0056006900650077007301000001b4000000ef000000a400ffffff0000033f0000026600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1200
-  X: 165
-  Y: 122
+  Width: 1296
+  X: 70
+  Y: 27

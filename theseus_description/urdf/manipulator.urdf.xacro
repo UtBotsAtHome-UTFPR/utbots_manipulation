@@ -18,10 +18,42 @@
     <xacro:property name="velocity" value="5.0"/>       
 
     <!-- Link -->
-    <xacro:property name="link1_length" value="0.275"/>
     <xacro:property name="link2_length" value="0.235"/>
-    <!-- <xacro:property name="" -->
+    <xacro:property name="step_reductor_height" value="0.025"/>
     <xacro:property name="finger_length" value="0.15"/>
+
+    <!-- Arm Base Link  -->
+    <xacro:property name="base_cilinder_height" value="0.025"/>
+    <xacro:property name="base_cilinder_radius" value="0.08"/>
+    <xacro:property name="base_servo_distance_from_center" value="0.08"/>
+    <xacro:property name="joint_1_lower_limit" value="0"/>
+    <xacro:property name="joint_1_upper_limit" value="${2*PI}"/>
+
+    <!-- Arm Link 1 -->
+    <xacro:property name="servo_motor_1_width" value="0.05"/>
+    <xacro:property name="servo_motor_1_depth" value="0.03"/>
+    <xacro:property name="servo_motor_1_height" value="0.06"/>
+    <xacro:property name="servo_motor_1_angle" value="${PI/4}"/>
+    <xacro:property name="servo_motor_1_offset_angle" value="-${3*PI/4}"/>
+    <xacro:property name="servo_hinge_1_width" value="0.065"/>
+    <xacro:property name="servo_hinge_1_depth" value="0.03"/>
+    <xacro:property name="servo_hinge_1_height" value="0.035"/>
+      
+    <xacro:property name="joint_2_lower_limit" value="${PI/4}"/>
+    <xacro:property name="joint_2_upper_limit" value="${3*PI/2}"/>
+    <xacro:property name="link1_length" value="0.275"/>
+    
+    <!-- Arm Link 2 -->
+    <xacro:property name="servo_motor_2_width" value="0.05"/>
+    <xacro:property name="servo_motor_2_depth" value="0.03"/>
+    <xacro:property name="servo_motor_2_height" value="0.06"/>
+    <xacro:property name="servo_motor_2_offset_angle" value="-${3*PI/4}"/>
+    <xacro:property name="servo_hinge_2_width" value="0.065"/>
+    <xacro:property name="servo_hinge_2_depth" value="0.03"/>
+    <xacro:property name="servo_hinge_2_height" value="0.035"/>
+
+    <xacro:property name="joint_3_lower_limit" value="${3*PI/4}"/>
+    <xacro:property name="joint_3_upper_limit" value="${3*PI/2}"/>
 
     <!-- Macros -->
     <xacro:macro name="default_inertial" params="mass">
@@ -40,15 +72,15 @@
     <link name="base_arm_link">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.025"/>
+            <origin rpy="0 0 0" xyz="0 0 ${base_cilinder_height}"/>
             <geometry>
-                <cylinder radius="0.08" length="0.025"/>
+                <cylinder radius="${base_cilinder_radius}" length="${base_cilinder_height}"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.025"/>
+            <origin rpy="0 0 0" xyz="0 0 ${base_cilinder_height}"/>
             <geometry>
-                <cylinder radius="0.08" length="0.025"/>
+                <cylinder radius="${base_cilinder_radius}" length="${base_cilinder_height}"/>
             </geometry>
         </collision>
     </link>
@@ -57,22 +89,22 @@
         <parent link="world"/>
         <child link="base_arm_link"/>
         <axis xyz="0 0 1"/>
-        <origin rpy="0 0 0.055" xyz="0 0 0.025"/>
-        <limit lower="0" upper="${2*PI}" effort="${effort}" velocity="${velocity}"/>
+        <origin rpy="0 0 0" xyz="0 0 ${base_cilinder_height}"/>
+        <limit lower="${joint_1_lower_limit}" upper="${joint_1_upper_limit}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="motor_link_1">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_motor_1_depth}"/>
             <geometry>
-                <box size="0.05 0.03 0.06"/>
+                <box size="${servo_motor_1_width} ${servo_motor_1_depth} ${servo_motor_1_height}"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_motor_1_depth}"/>
             <geometry>
-                <box size="0.05 0.03 0.06"/>
+                <box size="${servo_motor_1_width} ${servo_motor_1_depth} ${servo_motor_1_height}"/>
             </geometry>
         </collision>
     </link>
@@ -80,34 +112,35 @@
     <joint name="motor_joint_1" type="fixed">
         <parent link="base_arm_link"/>
         <child link="motor_link_1"/>
-        <origin rpy="${PI/4} 0 0" xyz="0 -0.04 0.03"/>
+        <origin rpy="${servo_motor_1_angle} 0 0" xyz="0 -${servo_motor_1_depth} ${servo_motor_1_width}"/>
     </joint>
 
     <link name="hinge_link_1">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_1_height/2}"/>
             <geometry>
-                <box size="0.065 0.03 0.035"/>
+                <box size="${servo_hinge_1_width} ${servo_hinge_1_depth} ${servo_hinge_1_height}"/>
             </geometry>
         </visual>
         <!-- <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_1_height/2}"/>
             <geometry>
-                <box size="0.065 0.03 0.035"/>
+                <box size="${servo_hinge_1_width} ${servo_hinge_1_depth} ${servo_hinge_1_height}"/>
             </geometry>
+        </visual>
         </collision> -->
     </link>
 
     <joint name="hinge_joint_1" type="revolute">
         <parent link="motor_link_1"/>
         <child link="hinge_link_1"/>
-        <origin rpy="-${3*PI/4} 0 0" xyz="0 0 0.06"/>
+        <origin rpy="${servo_motor_1_offset_angle} 0 0" xyz="0 0 ${servo_motor_1_height}"/>
         <axis xyz="1 0 0"/>
-        <limit lower="${PI/4}" upper="${3*PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="${joint_2_lower_limit}" upper="${joint_2_upper_limit}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
-    <link name="arm_link_2">
+    <link name="arm_link_1">
         <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link1_length/2}"/>
@@ -125,28 +158,28 @@
 
     <joint name="arm_joint_2" type="fixed">
         <parent link="hinge_link_1"/>
-        <child link="arm_link_2"/>
-        <origin rpy="0 0 0" xyz="0 0 0.035"/>
+        <child link="arm_link_1"/>
+        <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_1_height}"/>
     </joint>
 
     <link name="motor_link_2">
         <xacro:default_inertial mass="1.0"/>
-        <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+                <visual>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_motor_2_depth}"/>
             <geometry>
-                <box size="0.05 0.03 0.06"/>
+                <box size="${servo_motor_2_width} ${servo_motor_2_depth} ${servo_motor_2_height}"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.03"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_motor_2_depth}"/>
             <geometry>
-                <box size="0.05 0.03 0.06"/>
+                <box size="${servo_motor_2_width} ${servo_motor_2_depth} ${servo_motor_2_height}"/>
             </geometry>
         </collision>
     </link>
 
     <joint name="motor_joint_2" type="fixed">
-        <parent link="arm_link_2"/>
+        <parent link="arm_link_1"/>
         <child link="motor_link_2"/>
         <origin rpy="0 0 0" xyz="0 0 ${link2_length}"/>
     </joint>
@@ -154,15 +187,15 @@
     <link name="hinge_link_2">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_2_height/2}"/>
             <geometry>
-                <box size="0.065 0.03 0.035"/>
+                <box size="${servo_hinge_2_width} ${servo_hinge_2_depth} ${servo_hinge_2_height}"/>
             </geometry>
         </visual>
         <!-- <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_2_height/2}"/>
             <geometry>
-                <box size="0.065 0.03 0.035"/>
+                <box size="${servo_hinge_2_width} ${servo_hinge_2_depth} ${servo_hinge_2_height}"/>
             </geometry>
         </collision> -->
     </link>
@@ -170,12 +203,12 @@
     <joint name="hinge_joint_2" type="revolute">
         <parent link="motor_link_2"/>
         <child link="hinge_link_2"/>
-        <origin rpy="-${3*PI/4} 0 0" xyz="0 0 0.06"/>
+        <origin rpy="${servo_motor_2_offset_angle} 0 0" xyz="0 0 ${servo_motor_2_height}"/>
         <axis xyz="1 0 0"/>
-        <limit lower="${3*PI/4}" upper="${3*PI/2}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="${joint_2_lower_limit}" upper="${joint_2_upper_limit}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
-     <link name="arm_link_3">
+     <link name="arm_link_2">
         <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 ${link2_length/2}"/>
@@ -193,8 +226,8 @@
 
     <joint name="arm_joint_3" type="fixed">
         <parent link="hinge_link_2"/>
-        <child link="arm_link_3"/>
-        <origin rpy="0 0 0" xyz="0 0 0.035"/>
+        <child link="arm_link_2"/>
+        <origin rpy="0 0 0" xyz="0 0 ${servo_hinge_2_height}"/>
     </joint>
 
     <link name="claw_link">
@@ -214,7 +247,7 @@
     </link>
 
     <joint name="arm_to_claw_joint" type="fixed">
-        <parent link="arm_link_3"/>
+        <parent link="arm_link_2"/>
         <child link="claw_link"/>
         <origin rpy="0 0 0" xyz="0 0 ${link2_length}"/>
     </joint>
