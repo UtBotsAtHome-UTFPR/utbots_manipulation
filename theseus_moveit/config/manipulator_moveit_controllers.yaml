@@ -13,8 +13,8 @@ moveit_simple_controller_manager:
     default: true
     joints:
       - arm_joint_1
-      - arm_joint_2
-      - arm_joint_3
+      - hinge_joint_1
+      - hinge_joint_2
   gripper_controller:
     type: FollowJointTrajectory
     action_ns: follow_joint_trajectory

@@ -1,9 +1,6 @@
-# Default initial positions for theseus's ros2_control fake system
+# Default initial positions for manipulator's ros2_control fake system
 
 initial_positions:
-  arm_joint_1: 0
-  arm_joint_2: 0
-  arm_joint_3: 0
-  arm_joint_4: 0
-  gripper_joint: 0
   gripper_joint_1: 0
+  hinge_joint_1: 0.785398 # 45 degrees in radians
+  hinge_joint_2: 2.35619  # 135 degrees in radians
