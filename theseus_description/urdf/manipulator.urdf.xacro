@@ -16,8 +16,11 @@
     <xacro:property name="PI" value="3.14159265358979323846"/>
     <xacro:property name="effort" value="10.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
+
+    <!-- Link -->
     <xacro:property name="link1_length" value="0.275"/>
     <xacro:property name="link2_length" value="0.235"/>
+    <!-- <xacro:property name="" -->
     <xacro:property name="finger_length" value="0.15"/>
 
     <!-- Macros -->
@@ -34,29 +37,7 @@
 
     <link name="world"/>
 
-    <link name="base_link">
-        <xacro:default_inertial mass="1.0"/>
-        <visual>
-            <origin rpy="0 0 0" xyz="0 0 0"/>
-            <geometry>
-                <cylinder radius="0.15" length="0.01"/>
-            </geometry>
-        </visual>
-        <collision>
-            <origin rpy="0 0 0" xyz="0 0 0"/>
-            <geometry>
-                <cylinder radius="0.15" length="0.01"/>
-            </geometry>
-        </collision>
-    </link>
-
-    <joint name="base_arm_joint" type="fixed">
-        <parent link="world"/>
-        <child link="base_link"/>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-    </joint>
-
-    <link name="arm_link_1">
+    <link name="base_arm_link">
         <xacro:default_inertial mass="1.0"/>
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0.025"/>
@@ -73,10 +54,10 @@
     </link>
 
     <joint name="arm_joint_1" type="revolute">
-        <parent link="base_link"/>
-        <child link="arm_link_1"/>
+        <parent link="world"/>
+        <child link="base_arm_link"/>
         <axis xyz="0 0 1"/>
-        <origin rpy="0 0 0" xyz="0.025 0 0.04"/>
+        <origin rpy="0 0 0.055" xyz="0 0 0.025"/>
         <limit lower="0" upper="${2*PI}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
@@ -97,9 +78,33 @@
     </link>
 
     <joint name="motor_joint_1" type="fixed">
-        <parent link="arm_link_1"/>
+        <parent link="base_arm_link"/>
         <child link="motor_link_1"/>
-        <origin rpy="${PI/4} 0 0" xyz="0 0 0.03"/>
+        <origin rpy="${PI/4} 0 0" xyz="0 -0.04 0.03"/>
+    </joint>
+
+    <link name="hinge_link_1">
+        <xacro:default_inertial mass="1.0"/>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <geometry>
+                <box size="0.065 0.03 0.035"/>
+            </geometry>
+        </visual>
+        <!-- <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.0175"/>
+            <geometry>
+                <box size="0.065 0.03 0.035"/>
+            </geometry>
+        </collision> -->
+    </link>
+
+    <joint name="hinge_joint_1" type="revolute">
+        <parent link="motor_link_1"/>
+        <child link="hinge_link_1"/>
+        <origin rpy="-${3*PI/4} 0 0" xyz="0 0 0.06"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="${PI/4}" upper="${3*PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <link name="arm_link_2">
@@ -118,12 +123,10 @@
         </collision>
     </link>
 
-    <joint name="arm_joint_2" type="revolute">
-        <parent link="motor_link_1"/>
+    <joint name="arm_joint_2" type="fixed">
+        <parent link="hinge_link_1"/>
         <child link="arm_link_2"/>
-        <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 0 0.06"/>
-        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
+        <origin rpy="0 0 0" xyz="0 0 0.035"/>
     </joint>
 
     <link name="motor_link_2">
@@ -167,9 +170,9 @@
     <joint name="hinge_joint_2" type="revolute">
         <parent link="motor_link_2"/>
         <child link="hinge_link_2"/>
-        <origin rpy="0 0 0" xyz="0 0 0.06"/>
+        <origin rpy="-${3*PI/4} 0 0" xyz="0 0 0.06"/>
         <axis xyz="1 0 0"/>
-        <limit lower="-${3*PI/4}" upper="${3*PI/4}" effort="${effort}" velocity="${velocity}"/>
+        <limit lower="${3*PI/4}" upper="${3*PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
      <link name="arm_link_3">

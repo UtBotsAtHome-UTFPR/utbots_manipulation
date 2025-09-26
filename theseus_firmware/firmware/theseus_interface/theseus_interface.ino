@@ -78,6 +78,7 @@ void resetStepperPosition(AccelStepper &stepper, uint8_t endstop_pin) {
 
     // Move until the endstop is pressed
     Serial.println("Starting homing procedure...");
+    Serial.println(digitalRead(endstop_pin));
     while (digitalRead(endstop_pin) == HIGH) {
         Serial.println("Homing...");
         stepper.runSpeed();
