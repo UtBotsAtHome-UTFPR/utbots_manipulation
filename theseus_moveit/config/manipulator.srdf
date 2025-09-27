@@ -11,7 +11,14 @@
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
         <chain base_link="base_arm_link" tip_link="claw_link"/>
+        <joint name="arm_joint_1"/>
     </group>
+    <group_state name="home" group="arm">
+        <!-- coloque ângulos em radianos que estejam dentro dos limites (ex: 90° = 1.5708) -->
+        <joint name="arm_joint_1" value="0.0"/>         <!-- arm_joint_1 permite 0..2π -->
+        <joint name="hinge_joint_1" value="1.5708"/>    <!-- ~90°, dentro de [0.785,4.712] -->
+        <joint name="hinge_joint_2" value="1.5708"/>    <!-- ~90° -->
+    </group_state>
     <group name="gripper">
         <link name="gripper_center"/>
         <link name="gripper_right"/>
@@ -48,4 +55,6 @@
     <disable_collisions link1="gripper_right" link2="motor_link_1" reason="Never"/>
     <disable_collisions link1="gripper_right" link2="motor_link_2" reason="Never"/>
     <disable_collisions link1="motor_link_1" link2="motor_link_2" reason="Never"/>
+    <disable_collisions link1="hinge_link_1" link2="motor_link_1" reason="Adjacent"/>
+    <disable_collisions link1="hinge_link_2" link2="motor_link_2" reason="Adjacent"/>
 </robot>

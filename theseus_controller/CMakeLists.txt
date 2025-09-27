@@ -13,7 +13,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-# pkg_check_modules(SERIAL libserial)
+pkg_check_modules(SERIAL libserial)
 
 add_library(${PROJECT_NAME} SHARED
   src/theseus_interface.cpp

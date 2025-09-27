@@ -94,9 +94,9 @@ std::vector<hardware_interface::CommandInterface> TheseusInterface::export_comma
 CallbackReturn TheseusInterface::on_activate(const rclcpp_lifecycle::State & previous_state)
 {
     RCLCPP_INFO(rclcpp::get_logger("TheseusInterface"), "Starting manipulator hardware...");
-    position_commands_ = {0.0, 0.0, 0.0};
-    prev_position_commands_ = {0.0, 0.0, 0.0};
-    position_states_ = {0.0, 0.0, 0.0};
+    position_commands_ = {0.0, 0.786, 4.71};
+    prev_position_commands_ = {0.0, 0.786, 4.71};
+    position_states_ = {0.0, 0.786, 4.71};
 
     try
     {
@@ -151,17 +151,17 @@ hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & tim
     }
 
     std::string msg;
-    // int base = static_cast<int>((position_commands_.at(0) * 180) / M_PI + (135)); 
-    // msg.append("b");
-    // msg.append(compensateZeros(base));
-    // msg.append(std::to_string(base));
-    // msg.append(",");
-    int shoulder = static_cast<int>((position_commands_.at(1) * 180) / M_PI + (135)); 
+    int base = static_cast<int>((position_commands_.at(0) * 180) / M_PI); 
+    msg.append("b");
+    msg.append(compensateZeros(base));
+    msg.append(std::to_string(base));
+    msg.append(",");
+    int shoulder = static_cast<int>((position_commands_.at(1) * 180) / M_PI); 
     msg.append("s");
     msg.append(compensateZeros(shoulder));
     msg.append(std::to_string(shoulder));
     msg.append(",");
-    int elbow = static_cast<int>((position_commands_.at(2) * 180) / M_PI + (135)); 
+    int elbow = static_cast<int>((position_commands_.at(2) * 180) / M_PI); 
     msg.append("e");
     msg.append(compensateZeros(elbow));
     msg.append(std::to_string(elbow));
