@@ -5,3 +5,4 @@ initial_positions:
   hinge_joint_1: 0.785398 # 45 degrees in radians
   hinge_joint_2: 4.71238  # 135 degrees in radians
   gripper_joint_1: 0
+  gripper_joint_2: 0
