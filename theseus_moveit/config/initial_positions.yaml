@@ -1,6 +1,7 @@
 # Default initial positions for manipulator's ros2_control fake system
 
 initial_positions:
-  gripper_joint_1: 0
+  arm_joint_1: 0
   hinge_joint_1: 0.785398 # 45 degrees in radians
   hinge_joint_2: 4.71238  # 135 degrees in radians
+  gripper_joint_1: 0

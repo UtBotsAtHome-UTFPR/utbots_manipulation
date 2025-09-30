@@ -259,7 +259,7 @@
     <joint name="gripper_center_joint" type="fixed">
         <parent link="claw_link"/>
         <child link="gripper_center"/>
-        <origin rpy="0 0 0" xyz="0 0 ${-finger_length/2}"/>
+        <origin rpy="0 0 0" xyz="0 0 0.07"/>
     </joint>
 
     <link name="gripper_right">

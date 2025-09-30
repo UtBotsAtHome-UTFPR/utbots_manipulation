@@ -49,7 +49,7 @@
     <disable_collisions link1="claw_link" link2="gripper_right" reason="Adjacent"/>
     <disable_collisions link1="claw_link" link2="motor_link_1" reason="Never"/>
     <disable_collisions link1="claw_link" link2="motor_link_2" reason="Never"/>
-    <disable_collisions link1="gripper_left" link2="gripper_right" reason="Default"/>
+    <!-- <disable_collisions link1="gripper_left" link2="gripper_right" reason="Default"/> -->
     <disable_collisions link1="gripper_left" link2="motor_link_1" reason="Never"/>
     <disable_collisions link1="gripper_left" link2="motor_link_2" reason="Never"/>
     <disable_collisions link1="gripper_right" link2="motor_link_1" reason="Never"/>

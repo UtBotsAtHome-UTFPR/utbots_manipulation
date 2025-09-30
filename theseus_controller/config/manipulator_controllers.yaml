@@ -9,8 +9,8 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
     gripper_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-      # type: forward_command_controller/ForwardCommandController
+      # type: joint_trajectory_controller/JointTrajectoryController
+      type: forward_command_controller/ForwardCommandController
 
 arm_controller:
   ros__parameters:
@@ -21,11 +21,9 @@ arm_controller:
 
     command_interfaces:
       - position
-      # - velocity
 
     state_interfaces:
       - position
-      # - velocity
 
     open_loop_control: true
     allow_integration_in_goal_trajectories: true
@@ -35,15 +33,13 @@ gripper_controller:
     joints:
       - gripper_joint_1
 
-    # interface_name: position
+    interface_name: position
 
     command_interfaces:
       - position
-      # - velocity
 
     state_interfaces:
       - position
-      # - velocity
 
-    open_loop_control: true
-    allow_integration_in_goal_trajectories: true
+    # open_loop_control: true
+    # allow_integration_in_goal_trajectories: true
