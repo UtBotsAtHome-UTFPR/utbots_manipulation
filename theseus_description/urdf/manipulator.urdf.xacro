@@ -12,6 +12,9 @@
     <!-- Include ros2_control plugins -->
     <xacro:include filename="$(find theseus_description)/urdf/manipulator_ros2_control.xacro"/>
 
+    <!-- Mesh scale -->
+    <xacro:property name="mesh_scale" value="0.001 0.001 0.001"/>
+
     <!-- Useful XACRO variables -->
     <xacro:property name="PI" value="3.14159265358979323846"/>
     <xacro:property name="effort" value="10.0"/>   
@@ -232,15 +235,15 @@
     <link name="claw_link">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.01"/>
+            <origin rpy="0 ${PI/2} 0" xyz="-0.09 -0.095 -0.12"/>
             <geometry>
-                <cylinder radius="0.04" length="0.02"/>
+                <mesh filename="package://theseus_description/meshes/pulso-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
         <collision>
             <origin rpy="0 0 0" xyz="0 0 0.01"/>
             <geometry>
-                <cylinder radius="0.04" length="0.02"/>
+                <mesh filename="package://theseus_description/meshes/pulso-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </collision>
     </link>
@@ -262,15 +265,15 @@
     <link name="gripper_right">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <origin rpy="0 0 0" xyz="-0.0825 -0.08 0.0975"/>
             <geometry>
-                <cylinder radius="0.02" length="${finger_length}"/>
+                <mesh filename="package://theseus_description/meshes/palma-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <origin rpy="0 0 0" xyz="-0.0825 -0.08 0.0975"/>
             <geometry>
-                <cylinder radius="0.02" length="${finger_length}"/>
+                <mesh filename="package://theseus_description/meshes/palma-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </collision>
     </link>
@@ -278,15 +281,15 @@
     <link name="gripper_left">
         <xacro:default_inertial mass="1.0"/>
         <visual>
-            <origin rpy="0 0 -${PI/2}" xyz="0 0.02 ${finger_length/2}"/>
+            <origin rpy="0 0 -${PI}" xyz="0.0825 0.08 0.0975"/>
             <geometry>
-                <cylinder radius="0.02" length="${finger_length}"/>
+                <mesh filename="package://theseus_description/meshes/palma-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </visual>
         <collision>
-            <origin rpy="0 0 -${PI/2}" xyz="0 -0.02 ${finger_length/2}"/>
+            <origin rpy="0 0 -${PI}" xyz="0.0825 0.08 0.0975"/>
             <geometry>
-                <cylinder radius="0.02" length="${finger_length}"/>
+                <mesh filename="package://theseus_description/meshes/palma-garra.stl" scale="${mesh_scale}"/>
             </geometry>
         </collision>
     </link>
@@ -294,16 +297,16 @@
     <joint name="gripper_joint_1" type="revolute">
         <parent link="claw_link"/>
         <child link="gripper_right"/>
-        <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <origin rpy="0 0 0" xyz="0.015 0 0.05"/>
         <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
 
     <joint name="gripper_joint_2" type="revolute">
         <parent link="claw_link"/>
         <child link="gripper_left"/>
-        <axis xyz="1 0 0"/>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <origin rpy="0 0 0" xyz="-0.015 0 0.05"/>
         <mimic joint="gripper_joint_1" multiplier="-1"/>
         <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>
     </joint>
