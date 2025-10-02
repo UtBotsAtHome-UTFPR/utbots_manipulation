@@ -6,15 +6,16 @@
     <group name="arm">
         <chain base_link="base_arm_link" tip_link="claw_link"/>
         <joint name="arm_joint_1"/>
-        <joint name="gripper_center_joint"/>
+        <!-- <joint name="gripper_center_joint"/> -->
         <link name="gripper_center"/>
     </group>
-    <end_effector name="gripper_claw_ee" parent_link="gripper_center" group="arm" parent_group="arm"/>
+    <end_effector name="gripper_claw_ee" parent_link="gripper_center" group="gripper" parent_group="arm"/>
     
     <!-- Gripper Open/Close Movement -->
     <group name="gripper">
         <link name="gripper_right"/>
         <link name="gripper_left"/>
+        <link name="gripper_center"/>
         <joint name="gripper_joint_1"/>
         <joint name="gripper_joint_2"/>
     </group>
