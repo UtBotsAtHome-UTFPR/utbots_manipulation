@@ -183,7 +183,7 @@
     <joint name="motor_joint_2" type="fixed">
         <parent link="arm_link_1"/>
         <child link="motor_link_2"/>
-        <origin rpy="0 0 0" xyz="0 0 ${link2_length+servo_motor_2_height/2}"/>
+        <origin rpy="0 0 0" xyz="0 0 ${link1_length+servo_motor_2_height/2}"/>
     </joint>
 
     <link name="hinge_link_2">

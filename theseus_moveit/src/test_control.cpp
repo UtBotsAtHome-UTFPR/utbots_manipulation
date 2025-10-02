@@ -26,10 +26,14 @@ int main(int argc, char** argv)
     // === 1. Move arm to target pose ===
     geometry_msgs::msg::PoseStamped target_pose;
     target_pose.header.frame_id = "base_arm_link";  // adjust to your robot
-    target_pose.pose.position.x = 0.3;
-    target_pose.pose.position.y = 0.0;
-    target_pose.pose.position.z = 0.2;
-    target_pose.pose.orientation.w = 1.0;
+    target_pose.pose.position.x = -0.206;
+    target_pose.pose.position.y = -0.357;
+    target_pose.pose.position.z = 0.487;
+   
+    target_pose.pose.orientation.x = 0.433;
+    target_pose.pose.orientation.y = 0.250;
+    target_pose.pose.orientation.z = -0.250;
+    target_pose.pose.orientation.w = 0.837;
 
     arm.setPoseTarget(target_pose, "gripper_center");  // end-effector link name
 
