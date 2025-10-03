@@ -1,6 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
+#include <thread> // Include for std::thread
 
 int main(int argc, char** argv)
 {
@@ -8,16 +9,28 @@ int main(int argc, char** argv)
     rclcpp::init(argc, argv);
     auto node = rclcpp::Node::make_shared("test_control");
 
-    // Allow MoveGroupInterface to use this node
+    // === Executor Setup (Crucial Change) ===
+    // 1. Create the executor and add the node.
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
 
-    // === Initialize MoveIt C++ interfaces ===
-    static const std::string ARM_GROUP = "arm";         // adjust to your robot
-    static const std::string GRIPPER_GROUP = "gripper"; // adjust to your robot
+    // 2. Start the executor spinning in a separate thread.
+    //    This allows ROS callbacks (like the joint_states subscription)
+    //    to be processed while your main thread is blocked by plan() or execute().
+    std::thread([&executor]() { executor.spin(); }).detach();
 
+    // === Initialize MoveIt C++ interfaces ===
+    static const std::string ARM_GROUP = "arm";
+    static const std::string GRIPPER_GROUP = "gripper";
+
+    // MoveGroupInterface requires the node to be spinning in the background
+    // to receive the current robot state via joint_states topic.
     moveit::planning_interface::MoveGroupInterface arm(node, ARM_GROUP);
     moveit::planning_interface::MoveGroupInterface gripper(node, GRIPPER_GROUP);
+
+    // Give MoveIt a moment to process the first joint_states message
+    // This is often a good practice to ensure the current state is read before a plan is requested.
+    rclcpp::sleep_for(std::chrono::milliseconds(500)); 
 
     // Optional: set planning parameters
     arm.setPlanningTime(10.0);

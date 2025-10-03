@@ -166,7 +166,7 @@ hardware_interface::return_type TheseusInterface::write(const rclcpp::Time & tim
     msg.append(compensateZeros(elbow));
     msg.append(std::to_string(elbow));
     msg.append(",");
-    int gripper = static_cast<int>((position_commands_.at(2) * 180) / M_PI); 
+    int gripper = static_cast<int>((position_commands_.at(3) * 180) / M_PI); 
     msg.append("g");
     msg.append(compensateZeros(gripper));
     msg.append(std::to_string(gripper));

@@ -2,7 +2,7 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, Command, TextSubstitution, PathJoinSubstitution
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import DeclareLaunchArgument
@@ -17,6 +17,8 @@ def generate_launch_description():
 
     is_sim = LaunchConfiguration("is_sim")
     is_ignition = "True" if os.environ["ROS_DISTRO"] == "humble" else "False"
+
+    set_sim_time = SetParameter(name='use_sim_time', value=is_sim)
 
     # Declare model name as a launch argument
     model_arg = DeclareLaunchArgument(
@@ -101,6 +103,7 @@ def generate_launch_description():
     # Return all actions
     return LaunchDescription([
         is_sim_arg,
+        set_sim_time,
         model_arg,
         robot_state_publisher,
         controller_manager,
