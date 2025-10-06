@@ -14,8 +14,14 @@ find_package(moveit_core REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/PositionGoal.action"
+  "action/GripperGoal.action"
+)
+
 # Add your executable
 add_executable(test_control src/test_control.cpp)
+add_executable(theseus_action_server src/theseus_action_server.cpp)
 
 # Link against MoveIt2 and ROS 2 libraries
 ament_target_dependencies(
