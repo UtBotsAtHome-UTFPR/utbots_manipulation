@@ -1,10 +1,10 @@
 # Goal
 geometry_msgs/PointStamped target_point
 string standard_position
-
+---
 # Result
 bool success
 string message
-
+---
 # Feedback
 string status

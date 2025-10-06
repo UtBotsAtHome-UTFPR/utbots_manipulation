@@ -1,9 +1,10 @@
 # Goal
 float64 target_angle
 string standard_position
-
+---
 # Result
 bool success
 string message
-
+---
 # Feedback
+string status

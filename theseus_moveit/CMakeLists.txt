@@ -12,16 +12,24 @@ find_package(geometry_msgs REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(moveit_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/PositionGoal.action"
   "action/GripperGoal.action"
+  DEPENDENCIES geometry_msgs
 )
+
+ament_export_dependencies(rosidl_default_runtime)
 
 # Add your executable
 add_executable(test_control src/test_control.cpp)
 add_executable(theseus_action_server src/theseus_action_server.cpp)
+
+add_dependencies(theseus_action_server ${PROJECT_NAME}__rosidl_generator_cpp)
+add_dependencies(test_control ${PROJECT_NAME}__rosidl_generator_cpp)
 
 # Link against MoveIt2 and ROS 2 libraries
 ament_target_dependencies(
@@ -33,11 +41,37 @@ ament_target_dependencies(
   moveit_msgs
 )
 
+target_include_directories(theseus_action_server
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp>
+    $<INSTALL_INTERFACE:include>
+)
+
 # Install the executable
 install(
   TARGETS test_control
   DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_target_dependencies(
+  theseus_action_server
+  rclcpp
+  rclcpp_action
+  geometry_msgs
+  moveit_ros_planning_interface
+  moveit_core
+  moveit_msgs
+  rosidl_typesupport_cpp
+)
+
+target_link_libraries(theseus_action_server
+  ${PROJECT_NAME}__rosidl_typesupport_cpp
+)
+
+install(TARGETS
+  theseus_action_server
+  DESTINATION lib/${PROJECT_NAME})
+
 
 # Install launch, rviz, config (optional)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/launch")

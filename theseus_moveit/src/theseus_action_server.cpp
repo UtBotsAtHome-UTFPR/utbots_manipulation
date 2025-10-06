@@ -35,7 +35,7 @@ public:
         RCLCPP_INFO(this->get_logger(), "  - Orientation Tolerance: %.2f rad", arm_orientation_tolerance_);
         RCLCPP_INFO(this->get_logger(), "  - Position Tolerance: %.2f m", arm_position_tolerance_);
 
-        this->position_action_server_ = rclcpp_action::create_server<PositionGoal>(
+        this->position_action_server_ = rclcpp_action::create_server<theseus_moveit::action::PositionGoal>(
             this,
             "position_goal",
             std::bind(&TheseusActionServer::handle_arm_goal, this, _1, _2),
@@ -45,7 +45,7 @@ public:
         RCLCPP_INFO(this->get_logger(), "Manipulator action server started, waiting for goals");
 
         // Create the Action Server for the Gripper
-        this->gripper_action_server_ = rclcpp_action::create_server<GripperGoal>(
+        this->gripper_action_server_ = rclcpp_action::create_server<theseus_moveit::action::GripperGoal>(
             this,
             "gripper_goal",
             std::bind(&TheseusActionServer::handle_gripper_goal, this, _1, _2),
@@ -57,15 +57,21 @@ public:
     }
     
 private:
-    rclcpp_action::Server<PositionGoal>::SharedPtr position_action_server_;
-    rclcpp_action::Server<GripperGoal>::SharedPtr gripper_action_server_;
+    double arm_planning_time_;
+    double gripper_planning_time_;
+    double arm_orientation_tolerance_;
+    double arm_position_tolerance_;
+    rclcpp_action::Server<theseus_moveit::action::PositionGoal>::SharedPtr position_action_server_;
+    rclcpp_action::Server<theseus_moveit::action::GripperGoal>::SharedPtr gripper_action_server_;
+    using GoalHandlePositionGoal = rclcpp_action::ServerGoalHandle<theseus_moveit::action::PositionGoal>;
+    using GoalHandleGripperGoal = rclcpp_action::ServerGoalHandle<theseus_moveit::action::GripperGoal>;
 
     // --- Action Callbacks ---
 
     // Decides whether to accept or reject a new goal.
     rclcpp_action::GoalResponse handle_arm_goal(
         const rclcpp_action::GoalUUID & uuid,
-        std::shared_ptr<const PositionGoal::Goal> goal)
+        std::shared_ptr<const theseus_moveit::action::PositionGoal::Goal> goal)
     {
         RCLCPP_INFO(this->get_logger(), "Received goal request");
         (void)uuid;
@@ -84,10 +90,10 @@ private:
     // Starts the execution of the goal.
     void handle_arm_accepted(const std::shared_ptr<GoalHandlePositionGoal> goal_handle)
     {
-        std::thread{std::bind(&ArmActionServer::execute_arm, this, std::placeholders::_1), goal_handle}.detach();
+        std::thread{std::bind(&TheseusActionServer::execute_arm, this, std::placeholders::_1), goal_handle}.detach();
     }
 
-    rclcpp_action::GoalResponse handle_gripper_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const GripperGoal::Goal>) {
+    rclcpp_action::GoalResponse handle_gripper_goal(const rclcpp_action::GoalUUID &, std::shared_ptr<const theseus_moveit::action::GripperGoal::Goal>) {
         RCLCPP_INFO(this->get_logger(), "Received gripper goal request");
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     }
@@ -98,7 +104,7 @@ private:
     }
 
     void handle_gripper_accepted(const std::shared_ptr<GoalHandleGripperGoal> goal_handle) {
-        std::thread{std::bind(&ArmActionServer::execute_gripper, this, std::placeholders::_1), goal_handle}.detach();
+        std::thread{std::bind(&TheseusActionServer::execute_gripper, this, std::placeholders::_1), goal_handle}.detach();
     }
 
 
@@ -106,8 +112,8 @@ private:
     void execute_arm(const std::shared_ptr<GoalHandlePositionGoal> goal_handle)
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal...");
-        auto feedback = std::make_shared<PositionGoal::Feedback>();
-        auto result = std::make_shared<PositionGoal::Result>();
+        auto feedback = std::make_shared<theseus_moveit::action::PositionGoal::Feedback>();
+        auto result = std::make_shared<theseus_moveit::action::PositionGoal::Result>();
         const auto goal = goal_handle->get_goal();
 
         // Create a separate node for MoveIt operations
@@ -121,28 +127,28 @@ private:
         moveit::planning_interface::MoveGroupInterface arm(moveit_node, ARM_GROUP);
         arm.setPlanningTime(arm_planning_time_);
         arm.setGoalOrientationTolerance(arm_orientation_tolerance_); // Allow any orientation
-        arm.setGoalPositionTolerance(arm_position_tolerance);
+        arm.setGoalPositionTolerance(arm_position_tolerance_);
 
         // Get the current pose of the end-effector
         geometry_msgs::msg::Pose current_pose = arm.getCurrentPose().pose;
 
         // Print the current pose
-        RCLCPP_INFO(node->get_logger(), "Current end-effector pose:");
-        RCLCPP_INFO(node->get_logger(), "Position: x=%f, y=%f, z=%f",
+        RCLCPP_INFO(moveit_node->get_logger(), "Current end-effector pose:");
+        RCLCPP_INFO(moveit_node->get_logger(), "Position: x=%f, y=%f, z=%f",
                     current_pose.position.x, current_pose.position.y, current_pose.position.z);
-        RCLCPP_INFO(node->get_logger(), "Orientation: x=%f, y=%f, z=%f, w=%f",
+        RCLCPP_INFO(moveit_node->get_logger(), "Orientation: x=%f, y=%f, z=%f, w=%f",
                     current_pose.orientation.x, current_pose.orientation.y, current_pose.orientation.z, current_pose.orientation.w);
 
                     // Prioritize named target over position goal
         if (!goal->standard_position.empty()) {
             feedback->status = "Moving to named target: " + goal->standard_position;
             goal_handle->publish_feedback(feedback);
-            gripper.setNamedTarget(goal->standard_position);
+            arm.setNamedTarget(goal->standard_position);
         } else {
             // Publish feedback: Planning
             feedback->status = "Planning arm motion...";
             goal_handle->publish_feedback(feedback);
-            arm.setPositionTarget(goal->target_position.pose.position.x, goal->target_position.pose.position.y, goal->target_position.pose.position.z, "gripper_center");  // end-effector link name
+            arm.setPositionTarget(goal->target_point.point.x, goal->target_point.point.y, goal->target_point.point.z, "gripper_center");  // end-effector link name
             RCLCPP_INFO(this->get_logger(), feedback->status.c_str());
         }
 
@@ -151,7 +157,7 @@ private:
         bool success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
         
         // Check for cancellation requests
-        if (goal_handle->is_cancellation_requested())
+        if (goal_handle->is_canceling())
         {
             arm.stop(); // Stop any potential motion
             result->success = false;
@@ -189,8 +195,8 @@ private:
 
     void execute_gripper(const std::shared_ptr<GoalHandleGripperGoal> goal_handle) {
         RCLCPP_INFO(this->get_logger(), "Executing gripper goal...");
-        auto feedback = std::make_shared<GripperGoal::Feedback>();
-        auto result = std::make_shared<GripperGoal::Result>();
+        auto feedback = std::make_shared<theseus_moveit::action::GripperGoal::Feedback>();
+        auto result = std::make_shared<theseus_moveit::action::GripperGoal::Result>();
         const auto goal = goal_handle->get_goal();
 
         auto moveit_node = rclcpp::Node::make_shared("move_gripper_node");
@@ -208,15 +214,15 @@ private:
             goal_handle->publish_feedback(feedback);
             gripper.setNamedTarget(goal->standard_position);
         } else {
-            feedback->status = "Moving to joint value: " + std::to_string(goal->target_value);
+            feedback->status = "Moving to joint value: " + std::to_string(goal->target_angle);
             goal_handle->publish_feedback(feedback);
-            gripper.setJointValueTarget("gripper_joint_1", goal->target_value);
+            gripper.setJointValueTarget("gripper_joint_1", goal->target_angle);
         }
         
         moveit::planning_interface::MoveGroupInterface::Plan gripper_plan;
         bool success = (gripper.plan(gripper_plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
-        if (goal_handle->is_cancellation_requested()) {
+        if (goal_handle->is_canceling()) {
             result->success = false;
             result->message = "Action canceled during planning.";
             goal_handle->canceled(result);

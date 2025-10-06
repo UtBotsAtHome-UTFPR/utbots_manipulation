@@ -49,21 +49,38 @@ def generate_launch_description():
             parameters=[moveit_config.to_dict()],
         )
 
+        # Include controller launch file
         controller_launch_file = os.path.join(
-            get_package_share_directory('theseus_controller'), 
-            'launch', 
-            'controller.py'
+            get_package_share_directory('theseus_controller'),
+            'launch',
+            'controller.launch.py'
         )
-        
+
         controller_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(controller_launch_file),
             launch_arguments={
                 'model': model,
-                'is_sim': False
+                'is_sim': 'false'  # must be string for launch_arguments
             }.items()
         )
-        
-        return [action_server_node, controller_launch]
+
+        # Include controller launch file
+        moveit_launch_file = os.path.join(
+            get_package_share_directory('theseus_moveit'),
+            'launch',
+            'moveit.launch.py'
+        )
+
+        moveit_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(moveit_launch_file),
+            launch_arguments={
+                'model': model,
+                'is_sim': 'false'  # must be string for launch_arguments
+            }.items()
+        )
+
+        # Return a flat list of launch entities
+        return [action_server_node, controller_launch, moveit_launch]
 
     return LaunchDescription([
         model_arg,
