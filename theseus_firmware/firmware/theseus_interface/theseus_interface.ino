@@ -2,7 +2,7 @@
 #include <AccelStepper.h>
 
 #define SERVO_SPEED 10 // Reduced delay for smoother, faster movement
-#define HOMING_SPEED -6000
+#define HOMING_SPEED 6000
 
 /*
 ================================================================================
@@ -63,7 +63,7 @@ long angleToSteps(int angle, StepperMotor stepper) {
     Serial.println(angle);
 
     // Direct formula instead of map()
-    long steps = (long)angle * stepper.steps_per_rev * stepper.reduc / 360;
+    long steps = -(long)angle * stepper.steps_per_rev * stepper.reduc / 360;
 
     Serial.println("Sending steps to motor:");
     Serial.println(steps);
@@ -124,7 +124,7 @@ StepperMotor base   = {AccelStepper(AccelStepper::DRIVER, baseStepPin, baseDirPi
                       3200,
                       6000, // steps per second
                       1000,  // steps per second^2
-                      0,  // initial position
+                      30,  // initial position
                       0};  
                       
 void resetStepperReference() {

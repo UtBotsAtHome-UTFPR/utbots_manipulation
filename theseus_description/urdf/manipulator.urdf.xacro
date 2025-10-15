@@ -91,7 +91,7 @@
     <joint name="arm_joint_1" type="revolute">
         <parent link="world"/>
         <child link="base_arm_link"/>
-        <axis xyz="0 0 -1"/>
+        <axis xyz="0 0 1"/>
         <origin rpy="0 0 0" xyz="0 0 ${base_cilinder_height}"/>
         <limit lower="${joint_1_lower_limit}" upper="${joint_1_upper_limit}" effort="${effort}" velocity="${velocity}"/>
     </joint>
