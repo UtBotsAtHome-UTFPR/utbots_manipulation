@@ -11,25 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(SERIAL libserial)
-
 ament_python_install_package(${PROJECT_NAME})
-
-# add_executable(simple_serial_interface src/simple_serial_interface.cpp)
-# ament_target_dependencies(simple_serial_interface rclcpp std_msgs)
-
-# target_include_directories(simple_serial_interface PRIVATE
-#   include
-#   "${SERIAL_INCLUDE_DIRS}"
-# )
-
-# target_link_libraries(simple_serial_interface
-#   ${SERIAL_LIBRARIES}
-# )
-
-# install(TARGETS simple_serial_interface
-#   DESTINATION lib/${PROJECT_NAME}
-# )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

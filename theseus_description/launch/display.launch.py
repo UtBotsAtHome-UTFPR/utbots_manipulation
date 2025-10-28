@@ -2,18 +2,32 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, TextSubstitution, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     model_arg = DeclareLaunchArgument(
-        name="model", 
-        default_value=os.path.join(get_package_share_directory("theseus_description"), "urdf", "theseus.urdf.xacro"),
-        description="Absolute path to the robot URDF file"
+        name="model",
+        default_value="theseus",
+        description="Manipulator name suffix (e.g., theseus)"
     )
 
-    robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]))
+    xacro_file = [LaunchConfiguration("model"), TextSubstitution(text=".urdf.xacro")]
+
+    # Build the robot_description using xacro
+    robot_description = ParameterValue(
+        Command([
+            "xacro ",
+            PathJoinSubstitution([
+                FindPackageShare("theseus_description"),
+                "urdf",
+                xacro_file
+            ])
+        ]),
+        value_type=str,
+    )
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
