@@ -53,7 +53,8 @@ colcon build --packages-select theseus_controller theseus_description theseus_fi
 This packages' launches were built to support multiple manipulator definitions (urdf, srdf, control interfaces, etc.) and real/simulated environments. **Almost every launchfile can be launches with two important arguments**:
 
 - **model**: name of the manipulator model, the suffix string included in the files for that manipulator as "model_..."
-*Available models*: "manipulator" for simpler 3DOF and "theseus" for 5DOF.
+
+> *Available models*: "manipulator" for simpler 3DOF and "theseus" for 5DOF.
 
 - **is_sim**: True for running with simulated hardware in Gazebo/False for running with real hardware (must be connected to a microcontroller with the loaded firmware connected do /dev/ttyUSB0)
 
