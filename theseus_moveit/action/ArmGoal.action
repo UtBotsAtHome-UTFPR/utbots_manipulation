@@ -1,10 +1,14 @@
+
 # Goal
-float64 target_angle
+bool position_only
+geometry_msgs/PoseStamped target_pose
 string standard_pose
+
 ---
 # Result
 bool success
 string message
+
 ---
 # Feedback
 string status

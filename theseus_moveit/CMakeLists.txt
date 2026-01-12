@@ -17,7 +17,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/PositionGoal.action"
+  "action/ArmGoal.action"
   "action/GripperGoal.action"
   DEPENDENCIES geometry_msgs
 )

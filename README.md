@@ -79,13 +79,70 @@ ros2 launch theseus_controller theseus_bringup.launch.py model:=<model> is_sim:=
 You can send it to a standard position like 'home':
 
 ```bash
-ros2 action send_goal /position_goal theseus_moveit/action/PositionGoal "{standard_position: 'home', target_point: {header: {frame_id: 'base_arm_link'}, point: {x: 0.0, y: 0.0, z: 0.0}}}"
+ros2 action send_goal /position_goal theseus_moveit/action/PositionGoal "position_only: false
+target_pose:
+  header:
+    stamp:
+      sec: 0
+      nanosec: 0
+    frame_id: ''
+  pose:
+    position:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+standard_pose: 'home'"
 ```
 
 Or to a 3D target point:
 
 ```bash
-ros2 action send_goal /position_goal theseus_moveit/action/GripperGoal "{standard_position: '', point: {x: 0.3, y: -0.2, z: 0.2}}}""
+ros2 action send_goal /position_goal theseus_moveit/action/PositionGoal "position_only: false
+target_pose:
+  header:
+    stamp:
+      sec: 0
+      nanosec: 0
+    frame_id: ''
+  pose:
+    position:
+      x: 0.3
+      y: -0.2
+      z: 0.2
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+standard_pose: ''"
+```
+
+**IMPORTANT!**
+If you are using a less than 4DOF manipulator (such as model:=manipulator), you should set the *position_only* goal as True, otherwise it will certainly fail for not being able to ajust for orientation (the orientation values will be ignored in the position_only):
+```bash
+ros2 action send_goal /position_goal theseus_moveit/action/PositionGoal "position_only: true
+target_pose:
+  header:
+    stamp:
+      sec: 0
+      nanosec: 0
+    frame_id: ''
+  pose:
+    position:
+      x: 0.3
+      y: -0.2
+      z: 0.2
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+standard_pose: ''"
 ```
 
 - GripperGoal

@@ -86,7 +86,7 @@ def generate_launch_description():
 
     def setup_moveit(context, *args, **kwargs):
         model = LaunchConfiguration("model").perform(context)  # Resolve to str
-        print(f"[INFO] Using model: {model}")
+        print(f"BRINGUP \n\n\n\n\n\n[INFO] Using model: {model}")
 
         # Build absolute path to xacro
         xacro_file_path = os.path.join(
@@ -121,7 +121,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(moveit_launch_file),
             launch_arguments={
                 'model': model,
-                'is_sim': 'false'  # must be string for launch_arguments
+                'is_sim': is_sim
             }.items()
         )
 

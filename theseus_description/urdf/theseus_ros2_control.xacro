@@ -6,7 +6,7 @@
  
         <xacro:property name="PI" value="3.14159265358979323846"/>
 
-        <xacro:property name="initial_positions" value="$(find theseus_moveit)/config/initial_positions.yaml"/>
+        <xacro:property name="initial_positions" value="$(find theseus_moveit)/config/theseus/initial_positions.yaml"/>
 
         <!-- ros2_control Gazebo only -->
         <xacro:if value="$(arg is_sim)">

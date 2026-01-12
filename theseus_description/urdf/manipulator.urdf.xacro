@@ -8,7 +8,7 @@
     <xacro:arg name="is_ignition" default="true" />
 
     <!-- Include Gazebo Parameters (only relevant for sim) -->
-    <!-- <xacro:include filename="$(find theseus_description)/urdf/manipulator_gazebo.xacro"/> -->
+    <xacro:include filename="$(find theseus_description)/urdf/manipulator_gazebo.xacro"/>
     <!-- Include ros2_control plugins -->
     <xacro:include filename="$(find theseus_description)/urdf/manipulator_ros2_control.xacro"/>
 
@@ -91,7 +91,7 @@
     <joint name="arm_joint_1" type="revolute">
         <parent link="world"/>
         <child link="base_arm_link"/>
-        <axis xyz="0 0 1"/>
+        <axis xyz="0 0 -1"/>
         <origin rpy="0 0 0" xyz="0 0 ${base_cilinder_height}"/>
         <limit lower="${joint_1_lower_limit}" upper="${joint_1_upper_limit}" effort="${effort}" velocity="${velocity}"/>
     </joint>
@@ -305,7 +305,7 @@
     <joint name="gripper_joint_2" type="revolute">
         <parent link="claw_link"/>
         <child link="gripper_left"/>
-        <axis xyz="0 1 0"/>
+        <!-- <axis xyz="0 1 0"/> -->
         <origin rpy="0 0 0" xyz="-0.015 0 0.05"/>
         <mimic joint="gripper_joint_1" multiplier="-1"/>
         <limit lower="0" upper="${PI/2}" effort="${effort}" velocity="${velocity}"/>

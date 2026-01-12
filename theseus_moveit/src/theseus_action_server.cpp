@@ -6,7 +6,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 
 // Action headers
-#include "theseus_moveit/action/position_goal.hpp"
+#include "theseus_moveit/action/arm_goal.hpp"
 #include "theseus_moveit/action/gripper_goal.hpp"
 
 class TheseusActionServer : public rclcpp::Node
@@ -35,9 +35,9 @@ public:
         RCLCPP_INFO(this->get_logger(), "  - Orientation Tolerance: %.2f rad", arm_orientation_tolerance_);
         RCLCPP_INFO(this->get_logger(), "  - Position Tolerance: %.2f m", arm_position_tolerance_);
 
-        this->position_action_server_ = rclcpp_action::create_server<theseus_moveit::action::PositionGoal>(
+        this->position_action_server_ = rclcpp_action::create_server<theseus_moveit::action::ArmGoal>(
             this,
-            "position_goal",
+            "arm_goal",
             std::bind(&TheseusActionServer::handle_arm_goal, this, _1, _2),
             std::bind(&TheseusActionServer::handle_arm_cancel, this, _1),
             std::bind(&TheseusActionServer::handle_arm_accepted, this, _1));
@@ -61,9 +61,9 @@ private:
     double gripper_planning_time_;
     double arm_orientation_tolerance_;
     double arm_position_tolerance_;
-    rclcpp_action::Server<theseus_moveit::action::PositionGoal>::SharedPtr position_action_server_;
+    rclcpp_action::Server<theseus_moveit::action::ArmGoal>::SharedPtr position_action_server_;
     rclcpp_action::Server<theseus_moveit::action::GripperGoal>::SharedPtr gripper_action_server_;
-    using GoalHandlePositionGoal = rclcpp_action::ServerGoalHandle<theseus_moveit::action::PositionGoal>;
+    using GoalHandleArmGoal = rclcpp_action::ServerGoalHandle<theseus_moveit::action::ArmGoal>;
     using GoalHandleGripperGoal = rclcpp_action::ServerGoalHandle<theseus_moveit::action::GripperGoal>;
 
     // --- Action Callbacks ---
@@ -71,7 +71,7 @@ private:
     // Decides whether to accept or reject a new goal.
     rclcpp_action::GoalResponse handle_arm_goal(
         const rclcpp_action::GoalUUID & uuid,
-        std::shared_ptr<const theseus_moveit::action::PositionGoal::Goal> goal)
+        std::shared_ptr<const theseus_moveit::action::ArmGoal::Goal> goal)
     {
         RCLCPP_INFO(this->get_logger(), "Received goal request");
         (void)uuid;
@@ -80,7 +80,7 @@ private:
 
     // Reacts to a client's request to cancel the action.
     rclcpp_action::CancelResponse handle_arm_cancel(
-        const std::shared_ptr<GoalHandlePositionGoal> goal_handle)
+        const std::shared_ptr<GoalHandleArmGoal> goal_handle)
     {
         RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
         (void)goal_handle;
@@ -88,7 +88,7 @@ private:
     }
 
     // Starts the execution of the goal.
-    void handle_arm_accepted(const std::shared_ptr<GoalHandlePositionGoal> goal_handle)
+    void handle_arm_accepted(const std::shared_ptr<GoalHandleArmGoal> goal_handle)
     {
         std::thread{std::bind(&TheseusActionServer::execute_arm, this, std::placeholders::_1), goal_handle}.detach();
     }
@@ -107,14 +107,18 @@ private:
         std::thread{std::bind(&TheseusActionServer::execute_gripper, this, std::placeholders::_1), goal_handle}.detach();
     }
 
-
     // --- Main Execution Logic ---
-    void execute_arm(const std::shared_ptr<GoalHandlePositionGoal> goal_handle)
+    void execute_arm(const std::shared_ptr<GoalHandleArmGoal> goal_handle)
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal...");
-        auto feedback = std::make_shared<theseus_moveit::action::PositionGoal::Feedback>();
-        auto result = std::make_shared<theseus_moveit::action::PositionGoal::Result>();
+        auto feedback = std::make_shared<theseus_moveit::action::ArmGoal::Feedback>();
+        auto result = std::make_shared<theseus_moveit::action::ArmGoal::Result>();
         const auto goal = goal_handle->get_goal();
+        bool position_only = goal->position_only;
+
+        if (goal->target_pose.header.frame_id.empty() || goal->position_only) {
+            position_only = true;
+        }
 
         // Create a separate node for MoveIt operations
         auto moveit_node = rclcpp::Node::make_shared("move_arm_node");
@@ -126,30 +130,61 @@ private:
         static const std::string ARM_GROUP = "arm";
         moveit::planning_interface::MoveGroupInterface arm(moveit_node, ARM_GROUP);
         arm.setPlanningTime(arm_planning_time_);
-        arm.setGoalOrientationTolerance(arm_orientation_tolerance_); // Allow any orientation
+        if (position_only) {
+            arm.setGoalOrientationTolerance(3.14);  // Ignore orientation
+        } else {
+            arm.setGoalOrientationTolerance(arm_orientation_tolerance_);
+        }
         arm.setGoalPositionTolerance(arm_position_tolerance_);
+
+        arm.clearPathConstraints();
+        arm.clearPoseTargets();
 
         // Get the current pose of the end-effector
         geometry_msgs::msg::Pose current_pose = arm.getCurrentPose().pose;
 
         // Print the current pose
         RCLCPP_INFO(moveit_node->get_logger(), "Current end-effector pose:");
+        RCLCPP_INFO(moveit_node->get_logger(), "Frame ID: %s", arm.getPlanningFrame().c_str());
         RCLCPP_INFO(moveit_node->get_logger(), "Position: x=%f, y=%f, z=%f",
                     current_pose.position.x, current_pose.position.y, current_pose.position.z);
         RCLCPP_INFO(moveit_node->get_logger(), "Orientation: x=%f, y=%f, z=%f, w=%f",
                     current_pose.orientation.x, current_pose.orientation.y, current_pose.orientation.z, current_pose.orientation.w);
 
-                    // Prioritize named target over position goal
-        if (!goal->standard_position.empty()) {
-            feedback->status = "Moving to named target: " + goal->standard_position;
+        // Prioritize named target over cartesian goal
+        if (!goal->standard_pose.empty()) {
+
+            feedback->status = "Moving to named target: " + goal->standard_pose;
             goal_handle->publish_feedback(feedback);
-            arm.setNamedTarget(goal->standard_position);
+            arm.setNamedTarget(goal->standard_pose);
+
         } else {
-            // Publish feedback: Planning
+
             feedback->status = "Planning arm motion...";
             goal_handle->publish_feedback(feedback);
-            arm.setPositionTarget(goal->target_point.point.x, goal->target_point.point.y, goal->target_point.point.z, "gripper_center");  // end-effector link name
-            RCLCPP_INFO(this->get_logger(), feedback->status.c_str());
+
+            if (position_only) {
+                // ================================
+                // POSITION ONLY IK
+                // ================================
+                RCLCPP_INFO(this->get_logger(), "Using POSITION ONLY kinematics");
+
+                arm.setPositionTarget(
+                    goal->target_pose.pose.position.x,
+                    goal->target_pose.pose.position.y,
+                    goal->target_pose.pose.position.z,
+                    "gripper_center"
+                );
+
+            } else {
+                // ================================
+                // FULL POSE IK
+                // ================================
+                RCLCPP_INFO(this->get_logger(), "Using FULL POSE kinematics");
+
+                geometry_msgs::msg::Pose target_pose = goal->target_pose.pose;
+                arm.setPoseTarget(target_pose, "gripper_center");
+            }
         }
 
         // Plan the motion
@@ -209,10 +244,10 @@ private:
         gripper.setPlanningTime(gripper_planning_time_);
 
         // Prioritize named target over raw value
-        if (!goal->standard_position.empty()) {
-            feedback->status = "Moving to named target: " + goal->standard_position;
+        if (!goal->standard_pose.empty()) {
+            feedback->status = "Moving to named target: " + goal->standard_pose;
             goal_handle->publish_feedback(feedback);
-            gripper.setNamedTarget(goal->standard_position);
+            gripper.setNamedTarget(goal->standard_pose);
         } else {
             feedback->status = "Moving to joint value: " + std::to_string(goal->target_angle);
             goal_handle->publish_feedback(feedback);

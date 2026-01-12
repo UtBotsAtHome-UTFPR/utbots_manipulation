@@ -25,7 +25,7 @@ def generate_launch_description():
     # Use OpaqueFunction to resolve the urdf and srdf models into a real string path for MoveItConfigsBuilder
     def setup_moveit(context, *args, **kwargs):
         model = LaunchConfiguration("model").perform(context)  # Resolve to str
-        print(f"[INFO] Using model: {model}")
+        print(f"MOVEIT \n\n\n\n\n\n[INFO] Using model: {model}")
 
         # Build absolute path to xacro
         xacro_file_path = os.path.join(
@@ -40,23 +40,36 @@ def generate_launch_description():
             f"{model}.srdf"
         )
 
-        moveit_controller_file_path = os.path.join(
-            get_package_share_directory("theseus_moveit"),
-            "config",
-            f"{model}_moveit_controllers.yaml"
-        )
-
         print(f"[INFO] Resolved xacro file path: {xacro_file_path}")
 
+        # MoveIt config directory per model
+        moveit_config_dir = os.path.join(
+            get_package_share_directory("theseus_moveit"),
+            "config",
+            model
+        )
+
         # Create MoveIt configuration
-        moveit_config = MoveItConfigsBuilder(model, package_name="theseus_moveit") \
-            .robot_description(file_path=xacro_file_path) \
-            .robot_description_semantic(file_path=srdf_file_path) \
-            .robot_description_kinematics(file_path="config/kinematics.yaml") \
-            .joint_limits(file_path="config/joint_limits.yaml") \
-            .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml") \
-            .trajectory_execution(file_path="config/moveit_controllers.yaml") \
+        moveit_config = (
+            MoveItConfigsBuilder(model, package_name="theseus_moveit")
+            .robot_description(file_path=xacro_file_path)
+            .robot_description_semantic(
+                file_path=os.path.join(moveit_config_dir, "srdf.srdf")
+            )
+            .robot_description_kinematics(
+                file_path=os.path.join(moveit_config_dir, "kinematics.yaml")
+            )
+            .joint_limits(
+                file_path=os.path.join(moveit_config_dir, "joint_limits.yaml")
+            )
+            .pilz_cartesian_limits(
+                file_path=os.path.join(moveit_config_dir, "pilz_cartesian_limits.yaml")
+            )
+            .trajectory_execution(
+                file_path=os.path.join(moveit_config_dir, "moveit_controllers.yaml")
+            )
             .to_moveit_configs()
+        )
 
         # Move Group Node
         move_group_node = Node(
