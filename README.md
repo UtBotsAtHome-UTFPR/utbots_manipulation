@@ -44,7 +44,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/ # if error in build, run
 
 ```bash
 cd ..
-colcon build --packages-select theseus_controller theseus_description theseus_firmware --symlink-install
+colcon build --packages-select theseus_controller theseus_description theseus_firmware theseus_moveit --symlink-install
 ```
 
 ## Running
