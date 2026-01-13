@@ -30,10 +30,10 @@ public:
         this->get_parameter("arm_position_tolerance", arm_position_tolerance_);
 
         RCLCPP_INFO(this->get_logger(), "Arm Planning Parameters:");
-        RCLCPP_INFO(this->get_logger(), "  - Planning Time: %.2f s", arm_planning_time_);
-        RCLCPP_INFO(this->get_logger(), "  - Gripper Planning Time: %.2f s", gripper_planning_time_);
-        RCLCPP_INFO(this->get_logger(), "  - Orientation Tolerance: %.2f rad", arm_orientation_tolerance_);
-        RCLCPP_INFO(this->get_logger(), "  - Position Tolerance: %.2f m", arm_position_tolerance_);
+        RCLCPP_INFO(this->get_logger(), " - Planning Time: %.2f s", arm_planning_time_);
+        RCLCPP_INFO(this->get_logger(), " - Gripper Planning Time: %.2f s", gripper_planning_time_);
+        RCLCPP_INFO(this->get_logger(), " - Orientation Tolerance: %.2f rad", arm_orientation_tolerance_);
+        RCLCPP_INFO(this->get_logger(), " - Position Tolerance: %.2f m", arm_position_tolerance_);
 
         this->position_action_server_ = rclcpp_action::create_server<theseus_moveit::action::ArmGoal>(
             this,
@@ -113,12 +113,10 @@ private:
         RCLCPP_INFO(this->get_logger(), "Executing goal...");
         auto feedback = std::make_shared<theseus_moveit::action::ArmGoal::Feedback>();
         auto result = std::make_shared<theseus_moveit::action::ArmGoal::Result>();
+        
         const auto goal = goal_handle->get_goal();
-        bool position_only = goal->position_only;
 
-        if (goal->target_pose.header.frame_id.empty() || goal->position_only) {
-            position_only = true;
-        }
+        bool position_only = goal->position_only;
 
         // Create a separate node for MoveIt operations
         auto moveit_node = rclcpp::Node::make_shared("move_arm_node");
@@ -131,12 +129,11 @@ private:
         moveit::planning_interface::MoveGroupInterface arm(moveit_node, ARM_GROUP);
         arm.setPlanningTime(arm_planning_time_);
         if (position_only) {
-            arm.setGoalOrientationTolerance(3.14);  // Ignore orientation
+            arm.setGoalOrientationTolerance(3.14); // Ignore orientation
         } else {
             arm.setGoalOrientationTolerance(arm_orientation_tolerance_);
         }
         arm.setGoalPositionTolerance(arm_position_tolerance_);
-
         arm.clearPathConstraints();
         arm.clearPoseTargets();
 
@@ -151,80 +148,85 @@ private:
         RCLCPP_INFO(moveit_node->get_logger(), "Orientation: x=%f, y=%f, z=%f, w=%f",
                     current_pose.orientation.x, current_pose.orientation.y, current_pose.orientation.z, current_pose.orientation.w);
 
-        // Prioritize named target over cartesian goal
+        // Plan the movement
+        bool success = false;
+        moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
+        std::string planning_method = "";
+
+        // Standard Target (e.g. "home", "ready")
         if (!goal->standard_pose.empty()) {
-
-            feedback->status = "Moving to named target: " + goal->standard_pose;
-            goal_handle->publish_feedback(feedback);
+            planning_method = "Named Target: " + goal->standard_pose;
             arm.setNamedTarget(goal->standard_pose);
+            success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        }
+        // Position Only (3-DOF Compatible)
+        else if (position_only) {
+            planning_method = "Position Only (3-DOF)";
+            arm.setGoalOrientationTolerance(3.14); // Ignore orientation completely
+            
+            // Use setPositionTarget to strictly ignore orientation constraints
+            arm.setPositionTarget(
+                goal->target_pose.pose.position.x,
+                goal->target_pose.pose.position.y,
+                goal->target_pose.pose.position.z,
+                "gripper_center"
+            );
+            success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        }
+        // Full Pose (Universal Fallback for 6-DOF / 5-DOF)
+        else {
+            planning_method = "Full Pose (Strict 6-DOF)";
+            arm.setGoalOrientationTolerance(arm_orientation_tolerance_);
+            geometry_msgs::msg::Pose target_pose = goal->target_pose.pose;
 
-        } else {
+            // Try Strict IK (Best for 6-DOF)
+            RCLCPP_INFO(this->get_logger(), "Attempting STRICT pose target...");
+            arm.setPoseTarget(target_pose, "gripper_center");
+            success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
-            feedback->status = "Planning arm motion...";
-            goal_handle->publish_feedback(feedback);
-
-            if (position_only) {
-                // ================================
-                // POSITION ONLY IK
-                // ================================
-                RCLCPP_INFO(this->get_logger(), "Using POSITION ONLY kinematics");
-
-                arm.setPositionTarget(
-                    goal->target_pose.pose.position.x,
-                    goal->target_pose.pose.position.y,
-                    goal->target_pose.pose.position.z,
-                    "gripper_center"
-                );
-
-            } else {
-                // ================================
-                // FULL POSE IK
-                // ================================
-                RCLCPP_INFO(this->get_logger(), "Using FULL POSE kinematics");
-
-                geometry_msgs::msg::Pose target_pose = goal->target_pose.pose;
-                arm.setPoseTarget(target_pose, "gripper_center");
+            // Fallback to Approximate IK if Full Failed (Best for 5-DOF)
+            if (!success) {
+                RCLCPP_WARN(this->get_logger(), "Strict IK failed. Retrying with APPROXIMATE target (5-DOF Fallback)...");
+                planning_method = "Approximate Pose (5-DOF)";
+                
+                arm.clearPoseTargets();
+                // This finds the closest feasible joint configuration to the pose
+                arm.setApproximateJointValueTarget(target_pose, "gripper_center");
+                
+                success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
             }
         }
 
-        // Plan the motion
-        moveit::planning_interface::MoveGroupInterface::Plan arm_plan;
-        bool success = (arm.plan(arm_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        
-        // Check for cancellation requests
-        if (goal_handle->is_canceling())
-        {
-            arm.stop(); // Stop any potential motion
+        // Handle Cancellation
+        if (goal_handle->is_canceling()) {
+            arm.stop();
             result->success = false;
             result->message = "Action canceled during planning.";
             goal_handle->canceled(result);
             RCLCPP_INFO(this->get_logger(), "Goal canceled");
+            executor.cancel();
             return;
         }
 
-        if (success)
-        {
-            // Publish feedback: Executing
-            feedback->status = "Executing arm motion...";
+        // Execute or Abort
+        if (success) {
+            feedback->status = "Executing: " + planning_method;
             goal_handle->publish_feedback(feedback);
-            RCLCPP_INFO(this->get_logger(), feedback->status.c_str());
+            RCLCPP_INFO(this->get_logger(), "Plan found using [%s]. Executing...", planning_method.c_str());
             
-            // Execute the plan
             arm.execute(arm_plan);
 
-            // Final result
             result->success = true;
-            result->message = "Arm motion successful.";
+            result->message = "Motion successful (" + planning_method + ")";
             goal_handle->succeed(result);
             RCLCPP_INFO(this->get_logger(), "Goal succeeded");
-        }
-        else
-        {
+        } else {
             result->success = false;
-            result->message = "Arm planning failed!";
+            result->message = "Planning failed for: " + planning_method;
             goal_handle->abort(result);
-            RCLCPP_WARN(this->get_logger(), "Goal aborted");
+            RCLCPP_WARN(this->get_logger(), "Goal aborted: Could not find a valid plan.");
         }
+
         executor.cancel();
     }
 
@@ -290,3 +292,4 @@ int main(int argc, char **argv)
     rclcpp::shutdown();
     return 0;
 }
+	

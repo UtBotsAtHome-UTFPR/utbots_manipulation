@@ -20,7 +20,7 @@
                      izz="1.0"/>
         </inertial>
     </xacro:macro>
-    <xacro:property name="effort" value="10.0"/>   
+    <xacro:property name="effort" value="200.0"/>   
     <xacro:property name="velocity" value="5.0"/>       
 
     <!-- Mesh rendering properties -->
